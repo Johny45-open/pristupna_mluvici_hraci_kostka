@@ -37,6 +37,7 @@ void main() {
     expect(find.text('Mluvící hrací kostka'), findsOneWidget);
     expect(find.text('Hodit kostkou'), findsOneWidget);
     expect(find.text('Počet stran'), findsOneWidget);
+    expect(find.text('Rychlost hodu'), findsOneWidget);
     expect(find.text('Vzhled'), findsOneWidget);
   });
 

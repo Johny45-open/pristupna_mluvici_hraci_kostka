@@ -41,6 +41,18 @@
       }
     }
   },
+  "rollSpeedSectionTitle": "Rychlost hodu",
+  "speedSlow": "Pomalá",
+  "speedNormal": "Normální",
+  "speedFast": "Rychlá",
+  "speedLabel": "Rychlost hodu: {speed}",
+  "@speedLabel": {
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
   "appearanceTitle": "Vzhled",
   "themeLight": "Světlý",
   "themeDark": "Tmavý",

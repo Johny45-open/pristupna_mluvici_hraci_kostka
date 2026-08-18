@@ -214,6 +214,48 @@ void main() {
     await tester.pump();
     expect(settings.value.themeMode, ThemeMode.system);
   });
+
+  testWidgets('speed chips update the roll speed', (tester) async {
+    final controller = DiceController(random: Random(1), sides: 6);
+    final settings = SettingsController(const Settings());
+    await pumpScreen(tester, controller: controller, settings: settings);
+
+    await tester.ensureVisible(find.text('Pomalá'));
+    await tester.pump();
+    await tester.tap(find.text('Pomalá'));
+    await tester.pump();
+    expect(settings.value.rollSpeed, RollSpeed.slow);
+    expect(controller.rollSpeed, RollSpeed.slow);
+    expect(controller.rollInterval, const Duration(milliseconds: 180));
+
+    await tester.tap(find.text('Rychlá'));
+    await tester.pump();
+    expect(settings.value.rollSpeed, RollSpeed.fast);
+    expect(controller.rollSpeed, RollSpeed.fast);
+  });
+
+  testWidgets('speed chips announce the new speed', (tester) async {
+    final speech = await pumpScreen(tester);
+
+    await tester.ensureVisible(find.text('Rychlá'));
+    await tester.pump();
+    await tester.tap(find.text('Rychlá'));
+    await tester.pump();
+
+    expect(speech.announced, contains('Rychlost hodu: Rychlá.'));
+  });
+
+  test('roll speed is persisted and restored', () async {
+    SharedPreferences.setMockInitialValues({});
+    final settings = SettingsController(const Settings());
+    await settings.setRollSpeed(RollSpeed.fast);
+    final reloaded = await SettingsController.load();
+    expect(reloaded.value.rollSpeed, RollSpeed.fast);
+
+    SharedPreferences.setMockInitialValues({});
+    final defaults = await SettingsController.load();
+    expect(defaults.value.rollSpeed, RollSpeed.normal);
+  });
 }
 
 bool controllerStateIsDone(WidgetTester tester) {

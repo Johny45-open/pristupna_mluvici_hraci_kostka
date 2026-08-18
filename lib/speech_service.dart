@@ -153,6 +153,28 @@ class SpeechService {
     }
   }
 
+  Future<void> announceSpeed(
+    BuildContext context,
+    String speed, {
+    required bool explicitSpeech,
+    required bool semanticsAnnounce,
+  }) async {
+    final supportsAnnounce = MediaQuery.supportsAnnounceOf(context);
+    final accessibleNavigation = MediaQuery.accessibleNavigationOf(context);
+    final locale = Localizations.localeOf(context);
+    final text = '${AppLocalizations.of(context).speedLabel(speed)}.';
+    if (semanticsAnnounce && supportsAnnounce) {
+      final view = View.of(context);
+      final direction = Directionality.of(context);
+      try {
+        await SemanticsService.sendAnnouncement(view, text, direction);
+      } catch (_) {}
+    }
+    if (explicitSpeech && !accessibleNavigation) {
+      await _speak(text, locale: locale);
+    }
+  }
+
   Future<void> dispose() async {
     try {
       await _tts.stop();

@@ -126,4 +126,62 @@ void main() {
       controller.dispose();
     });
   });
+
+  test('setRollSpeed updates the timing parameters', () {
+    fakeAsync((async) {
+      final controller = DiceController(random: Random(6));
+      expect(controller.rollSpeed, RollSpeed.normal);
+      expect(controller.rollInterval, const Duration(milliseconds: 90));
+      expect(controller.decelerationStart, const Duration(milliseconds: 120));
+
+      controller.setRollSpeed(RollSpeed.slow);
+      expect(controller.rollSpeed, RollSpeed.slow);
+      expect(controller.rollInterval, const Duration(milliseconds: 180));
+      expect(controller.decelerationStart, const Duration(milliseconds: 240));
+
+      controller.setRollSpeed(RollSpeed.fast);
+      expect(controller.rollSpeed, RollSpeed.fast);
+      expect(controller.rollInterval, const Duration(milliseconds: 45));
+      expect(controller.decelerationStart, const Duration(milliseconds: 60));
+
+      controller.dispose();
+    });
+  });
+
+  test('setRollSpeed with the same value does nothing', () {
+    fakeAsync((async) {
+      final controller = DiceController(random: Random(7));
+      var notifications = 0;
+      controller.addListener(() => notifications++);
+
+      controller.setRollSpeed(RollSpeed.normal);
+      expect(notifications, 0);
+
+      controller.dispose();
+    });
+  });
+
+  test('slow roll changes the value less often than a fast one', () {
+    fakeAsync((async) {
+      final slow = DiceController(random: Random(8), rollSpeed: RollSpeed.slow);
+      final fast = DiceController(random: Random(9), rollSpeed: RollSpeed.fast);
+
+      var slowTicks = 0;
+      var fastTicks = 0;
+      slow.addListener(() => slowTicks++);
+      fast.addListener(() => fastTicks++);
+
+      slow.start();
+      fast.start();
+      async.elapse(const Duration(milliseconds: 360));
+
+      // start() notifies once, then the periodic timer ticks every interval.
+      expect(slowTicks, 3, reason: 'slow rolls every 180 ms');
+      expect(fastTicks, 9, reason: 'fast rolls every 45 ms');
+      expect(slowTicks, lessThan(fastTicks));
+
+      slow.dispose();
+      fast.dispose();
+    });
+  });
 }

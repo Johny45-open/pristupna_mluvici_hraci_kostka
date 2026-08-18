@@ -58,6 +58,23 @@ class AppLocalizationsCs extends AppLocalizations {
   }
 
   @override
+  String get rollSpeedSectionTitle => 'Rychlost hodu';
+
+  @override
+  String get speedSlow => 'Pomalá';
+
+  @override
+  String get speedNormal => 'Normální';
+
+  @override
+  String get speedFast => 'Rychlá';
+
+  @override
+  String speedLabel(String speed) {
+    return 'Rychlost hodu: $speed';
+  }
+
+  @override
   String get appearanceTitle => 'Vzhled';
 
   @override

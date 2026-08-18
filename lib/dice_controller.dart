@@ -5,6 +5,31 @@ import 'package:flutter/foundation.dart';
 
 enum RollState { idle, rolling, decelerating, done }
 
+/// Presets controlling how fast the numbers cycle while held and how quickly
+/// the dice settles once released.
+enum RollSpeed {
+  slow(
+    rollInterval: Duration(milliseconds: 180),
+    decelerationStart: Duration(milliseconds: 240),
+  ),
+  normal(
+    rollInterval: Duration(milliseconds: 90),
+    decelerationStart: Duration(milliseconds: 120),
+  ),
+  fast(
+    rollInterval: Duration(milliseconds: 45),
+    decelerationStart: Duration(milliseconds: 60),
+  );
+
+  const RollSpeed({
+    required this.rollInterval,
+    required this.decelerationStart,
+  });
+
+  final Duration rollInterval;
+  final Duration decelerationStart;
+}
+
 /// State machine driving the dice.
 ///
 /// * Pointer press  -> [start] (numbers keep changing while held).
@@ -14,22 +39,26 @@ class DiceController extends ChangeNotifier {
   DiceController({
     Random? random,
     this.sides = 6,
-    this.rollInterval = const Duration(milliseconds: 90),
-    this.decelerationStart = const Duration(milliseconds: 120),
+    RollSpeed rollSpeed = RollSpeed.normal,
     this.decelerationGrowth = 1.25,
     this.maxDecelerationInterval = const Duration(milliseconds: 700),
     this.onRollStart,
     this.onResult,
-  }) : _random = random ?? Random();
+  })  : _random = random ?? Random(),
+        _rollSpeed = rollSpeed,
+        rollInterval = rollSpeed.rollInterval,
+        decelerationStart = rollSpeed.decelerationStart;
 
   static const int minSides = 2;
   static const int maxSides = 100;
 
   final Random _random;
-  final Duration rollInterval;
-  final Duration decelerationStart;
   final double decelerationGrowth;
   final Duration maxDecelerationInterval;
+
+  RollSpeed _rollSpeed;
+  Duration rollInterval;
+  Duration decelerationStart;
 
   /// Called when a new roll starts.
   VoidCallback? onRollStart;
@@ -54,6 +83,18 @@ class DiceController extends ChangeNotifier {
     if (currentValue != null && currentValue! > sides) {
       currentValue = sides;
     }
+    notifyListeners();
+  }
+
+  RollSpeed get rollSpeed => _rollSpeed;
+
+  /// Changes how fast the dice rolls. Takes effect from the next roll;
+  /// a roll already in progress keeps its current timing.
+  void setRollSpeed(RollSpeed value) {
+    if (value == _rollSpeed) return;
+    _rollSpeed = value;
+    rollInterval = value.rollInterval;
+    decelerationStart = value.decelerationStart;
     notifyListeners();
   }
 

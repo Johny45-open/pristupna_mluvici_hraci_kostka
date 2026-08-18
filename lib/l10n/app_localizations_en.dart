@@ -58,6 +58,23 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get rollSpeedSectionTitle => 'Roll speed';
+
+  @override
+  String get speedSlow => 'Slow';
+
+  @override
+  String get speedNormal => 'Normal';
+
+  @override
+  String get speedFast => 'Fast';
+
+  @override
+  String speedLabel(String speed) {
+    return 'Roll speed: $speed';
+  }
+
+  @override
   String get appearanceTitle => 'Appearance';
 
   @override

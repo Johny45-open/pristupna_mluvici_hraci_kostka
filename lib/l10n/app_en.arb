@@ -41,6 +41,18 @@
       }
     }
   },
+  "rollSpeedSectionTitle": "Roll speed",
+  "speedSlow": "Slow",
+  "speedNormal": "Normal",
+  "speedFast": "Fast",
+  "speedLabel": "Roll speed: {speed}",
+  "@speedLabel": {
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
   "appearanceTitle": "Appearance",
   "themeLight": "Light",
   "themeDark": "Dark",

@@ -119,6 +119,8 @@ class _DiceScreenState extends State<DiceScreen> {
                   const SizedBox(height: 32),
                   _buildSidesSection(context),
                   const SizedBox(height: 24),
+                  _buildRollSpeedSection(context),
+                  const SizedBox(height: 24),
                   _buildThemeSection(context),
                   const SizedBox(height: 16),
                   _buildSpeechSettings(context),
@@ -255,6 +257,67 @@ class _DiceScreenState extends State<DiceScreen> {
     widget.settings.setSides(clamped);
     _controller.setSides(clamped);
     _announceSides(clamped);
+  }
+
+  String _speedName(BuildContext context, RollSpeed speed) {
+    final l10n = AppLocalizations.of(context);
+    return switch (speed) {
+      RollSpeed.slow => l10n.speedSlow,
+      RollSpeed.normal => l10n.speedNormal,
+      RollSpeed.fast => l10n.speedFast,
+    };
+  }
+
+  Future<void> _announceSpeed(RollSpeed speed) async {
+    if (!mounted) return;
+    final settings = widget.settings.value;
+    await _speech.announceSpeed(
+      context,
+      _speedName(context, speed),
+      explicitSpeech: settings.explicitSpeech,
+      semanticsAnnounce: settings.semanticsAnnounce,
+    );
+  }
+
+  void _setRollSpeed(RollSpeed value) {
+    if (value == widget.settings.value.rollSpeed) return;
+    widget.settings.setRollSpeed(value);
+    _controller.setRollSpeed(value);
+    _announceSpeed(value);
+  }
+
+  Widget _buildRollSpeedSection(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final speed = widget.settings.value.rollSpeed;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.rollSpeedSectionTitle,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final option in RollSpeed.values)
+              MergeSemantics(
+                child: Semantics(
+                  label: l10n.speedLabel(_speedName(context, option)),
+                  child: ChoiceChip(
+                    label: ExcludeSemantics(
+                      child: Text(_speedName(context, option)),
+                    ),
+                    selected: speed == option,
+                    onSelected: (_) => _setRollSpeed(option),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
   }
 
   Widget _buildThemeSection(BuildContext context) {

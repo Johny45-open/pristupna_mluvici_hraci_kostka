@@ -27,7 +27,10 @@ class _AppState extends State<App> {
   @override
   void initState() {
     super.initState();
-    _controller = DiceController(sides: widget.settings.value.sides);
+    _controller = DiceController(
+      sides: widget.settings.value.sides,
+      rollSpeed: widget.settings.value.rollSpeed,
+    );
   }
 
   @override

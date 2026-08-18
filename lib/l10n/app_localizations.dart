@@ -176,6 +176,36 @@ abstract class AppLocalizations {
   /// **'Počet stran: {sides}'**
   String sideCountLabel(int sides);
 
+  /// No description provided for @rollSpeedSectionTitle.
+  ///
+  /// In cs, this message translates to:
+  /// **'Rychlost hodu'**
+  String get rollSpeedSectionTitle;
+
+  /// No description provided for @speedSlow.
+  ///
+  /// In cs, this message translates to:
+  /// **'Pomalá'**
+  String get speedSlow;
+
+  /// No description provided for @speedNormal.
+  ///
+  /// In cs, this message translates to:
+  /// **'Normální'**
+  String get speedNormal;
+
+  /// No description provided for @speedFast.
+  ///
+  /// In cs, this message translates to:
+  /// **'Rychlá'**
+  String get speedFast;
+
+  /// No description provided for @speedLabel.
+  ///
+  /// In cs, this message translates to:
+  /// **'Rychlost hodu: {speed}'**
+  String speedLabel(String speed);
+
   /// No description provided for @appearanceTitle.
   ///
   /// In cs, this message translates to:
