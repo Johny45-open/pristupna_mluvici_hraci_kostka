@@ -1,9 +1,11 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pristupna_mluvici_hraci_kostka/dice_controller.dart';
 import 'package:pristupna_mluvici_hraci_kostka/dice_screen.dart';
+import 'package:pristupna_mluvici_hraci_kostka/l10n/app_localizations.dart';
 import 'package:pristupna_mluvici_hraci_kostka/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,6 +19,14 @@ Future<FakeSpeechService> pumpScreen(
   final speech = FakeSpeechService();
   await tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        AppLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('cs'),
       home: DiceScreen(
         controller: controller ?? DiceController(random: Random(1), sides: 6),
         settings: settings ?? SettingsController(const Settings()),
@@ -115,6 +125,56 @@ void main() {
     await tester.tap(find.byTooltip('Snížit počet stran'));
     await tester.pump();
     expect(controller.sides, 8);
+  });
+
+  testWidgets('preset chips announce the new side count', (tester) async {
+    final speech = await pumpScreen(tester);
+
+    await tester.ensureVisible(find.text('d8'));
+    await tester.pump();
+    await tester.tap(find.text('d8'));
+    await tester.pump();
+
+    expect(speech.announced, contains('Počet stran: 8.'));
+  });
+
+  testWidgets('stepper announces the new side count', (tester) async {
+    final speech = await pumpScreen(tester);
+
+    await tester.ensureVisible(find.byTooltip('Zvýšit počet stran'));
+    await tester.tap(find.byTooltip('Zvýšit počet stran'));
+    await tester.pump();
+
+    expect(speech.announced, contains('Počet stran: 7.'));
+  });
+
+  testWidgets('stepper at the limit does not announce', (tester) async {
+    final controller = DiceController(random: Random(1), sides: 100);
+    final speech = await pumpScreen(tester, controller: controller);
+
+    await tester.ensureVisible(find.byTooltip('Zvýšit počet stran'));
+    await tester.tap(find.byTooltip('Zvýšit počet stran'));
+    await tester.pump();
+
+    expect(
+      speech.announced.where((m) => m.startsWith('Počet stran: ')),
+      isEmpty,
+    );
+  });
+
+  testWidgets('preset chips expose a readable semantics label', (tester) async {
+    await pumpScreen(tester);
+    final handle = tester.ensureSemantics();
+
+    await tester.ensureVisible(find.text('d20'));
+    await tester.pump();
+
+    expect(
+      find.bySemanticsLabel(RegExp('Kostka s 20 stranami')),
+      findsOneWidget,
+    );
+
+    handle.dispose();
   });
 
   testWidgets('dice respects a custom limit while rolling', (tester) async {

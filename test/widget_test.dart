@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pristupna_mluvici_hraci_kostka/dice_controller.dart';
 import 'package:pristupna_mluvici_hraci_kostka/dice_screen.dart';
+import 'package:pristupna_mluvici_hraci_kostka/l10n/app_localizations.dart';
 import 'package:pristupna_mluvici_hraci_kostka/main.dart';
 import 'package:pristupna_mluvici_hraci_kostka/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,6 +18,14 @@ void main() {
   testWidgets('dice app smoke test', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          AppLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('cs'),
         home: DiceScreen(
           controller: DiceController(sides: 6),
           settings: SettingsController(const Settings()),
@@ -31,6 +41,8 @@ void main() {
   });
 
   testWidgets('theme selection switches MaterialApp.themeMode', (tester) async {
+    tester.platformDispatcher.localesTestValue = const [Locale('cs')];
+    addTearDown(tester.platformDispatcher.clearLocalesTestValue);
     final settings = await SettingsController.load();
     await tester.pumpWidget(App(settings: settings));
 

@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'dice_controller.dart';
 import 'dice_screen.dart';
+import 'l10n/app_localizations.dart';
 import 'settings.dart';
 
 Future<void> main() async {
@@ -41,7 +42,7 @@ class _AppState extends State<App> {
       listenable: widget.settings,
       builder: (context, _) {
         return MaterialApp(
-          title: 'Mluvící hrací kostka',
+          onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
@@ -57,9 +58,9 @@ class _AppState extends State<App> {
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
+            AppLocalizations.delegate,
           ],
-          supportedLocales: const [Locale('cs'), Locale('en')],
-          locale: const Locale('cs'),
+          supportedLocales: AppLocalizations.supportedLocales,
           home: DiceScreen(
             controller: _controller,
             settings: widget.settings,

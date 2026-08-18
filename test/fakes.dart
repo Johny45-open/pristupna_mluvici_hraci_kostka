@@ -44,4 +44,14 @@ class FakeSpeechService extends SpeechService {
   }) async {
     announced.add('Padlo číslo $value.');
   }
+
+  @override
+  Future<void> announceSides(
+    BuildContext context,
+    int sides, {
+    required bool explicitSpeech,
+    required bool semanticsAnnounce,
+  }) async {
+    announced.add('Počet stran: $sides.');
+  }
 }

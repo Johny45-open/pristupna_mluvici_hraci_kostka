@@ -4,6 +4,8 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
+import 'l10n/app_localizations.dart';
+
 /// Minimal TTS surface so tests can substitute a fake.
 abstract class TtsAdapter {
   Future<void> setLanguage(String language);
@@ -54,25 +56,27 @@ class SpeechService {
   final TtsAdapter _tts;
   final MethodChannel _linuxChannel;
   bool _initialized = false;
+  Locale? _locale;
 
   bool get _isLinux => !kIsWeb && defaultTargetPlatform == TargetPlatform.linux;
 
-  Future<void> _init() async {
-    if (_initialized) return;
+  Future<void> _init(Locale locale) async {
+    if (_initialized && _locale == locale) return;
     _initialized = true;
-    await _tts.setLanguage('cs-CZ');
+    _locale = locale;
+    await _tts.setLanguage(locale.toLanguageTag());
     await _tts.setSpeechRate(0.45);
     await _tts.setVolume(1.0);
     await _tts.setPitch(1.0);
   }
 
-  Future<void> _speak(String text) async {
+  Future<void> _speak(String text, {required Locale locale}) async {
     try {
       if (_isLinux) {
         await _linuxChannel.invokeMethod<void>('speak', text);
         return;
       }
-      await _init();
+      await _init(locale);
       await _tts.stop();
       await _tts.speak(text);
     } catch (_) {
@@ -91,15 +95,17 @@ class SpeechService {
   }) async {
     final supportsAnnounce = MediaQuery.supportsAnnounceOf(context);
     final accessibleNavigation = MediaQuery.accessibleNavigationOf(context);
+    final locale = Localizations.localeOf(context);
+    final text = AppLocalizations.of(context).rollingLabel;
     if (semanticsAnnounce && supportsAnnounce) {
       final view = View.of(context);
       final direction = Directionality.of(context);
       try {
-        await SemanticsService.sendAnnouncement(view, 'Házím kostkou.', direction);
+        await SemanticsService.sendAnnouncement(view, text, direction);
       } catch (_) {}
     }
     if (explicitSpeech && !accessibleNavigation) {
-      await _speak('Házím kostkou.');
+      await _speak(text, locale: locale);
     }
   }
 
@@ -111,19 +117,39 @@ class SpeechService {
   }) async {
     final supportsAnnounce = MediaQuery.supportsAnnounceOf(context);
     final accessibleNavigation = MediaQuery.accessibleNavigationOf(context);
+    final locale = Localizations.localeOf(context);
+    final text = AppLocalizations.of(context).resultLabel(value);
     if (semanticsAnnounce && supportsAnnounce) {
       final view = View.of(context);
       final direction = Directionality.of(context);
       try {
-        await SemanticsService.sendAnnouncement(
-          view,
-          'Padlo číslo $value.',
-          direction,
-        );
+        await SemanticsService.sendAnnouncement(view, text, direction);
       } catch (_) {}
     }
     if (explicitSpeech && !accessibleNavigation) {
-      await _speak('Padlo číslo $value.');
+      await _speak(text, locale: locale);
+    }
+  }
+
+  Future<void> announceSides(
+    BuildContext context,
+    int sides, {
+    required bool explicitSpeech,
+    required bool semanticsAnnounce,
+  }) async {
+    final supportsAnnounce = MediaQuery.supportsAnnounceOf(context);
+    final accessibleNavigation = MediaQuery.accessibleNavigationOf(context);
+    final locale = Localizations.localeOf(context);
+    final text = '${AppLocalizations.of(context).sideCountLabel(sides)}.';
+    if (semanticsAnnounce && supportsAnnounce) {
+      final view = View.of(context);
+      final direction = Directionality.of(context);
+      try {
+        await SemanticsService.sendAnnouncement(view, text, direction);
+      } catch (_) {}
+    }
+    if (explicitSpeech && !accessibleNavigation) {
+      await _speak(text, locale: locale);
     }
   }
 

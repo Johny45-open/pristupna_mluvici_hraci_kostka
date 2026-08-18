@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'dice_controller.dart';
+import 'l10n/app_localizations.dart';
 import 'settings.dart';
 import 'speech_service.dart';
 
@@ -83,10 +84,21 @@ class _DiceScreenState extends State<DiceScreen> {
     );
   }
 
+  Future<void> _announceSides(int sides) async {
+    if (!mounted) return;
+    final settings = widget.settings.value;
+    await _speech.announceSides(
+      context,
+      sides,
+      explicitSpeech: settings.explicitSpeech,
+      semanticsAnnounce: settings.semanticsAnnounce,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Mluvící hrací kostka')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).appTitle)),
       body: SafeArea(
         child: ListenableBuilder(
           listenable: Listenable.merge([_controller, widget.settings]),
@@ -101,9 +113,7 @@ class _DiceScreenState extends State<DiceScreen> {
                   _buildRollButton(context),
                   const SizedBox(height: 24),
                   Text(
-                    'Podržte tlačítko a kostka se bude točit. Po uvolnění se zpomalí '
-                    'a zastaví na výsledném čísle. Stiskem klávesy nebo aktivací '
-                    'kostku roztočíte a druhým stiskem zastavíte.',
+                    AppLocalizations.of(context).instructions,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
@@ -111,7 +121,7 @@ class _DiceScreenState extends State<DiceScreen> {
                   const SizedBox(height: 24),
                   _buildThemeSection(context),
                   const SizedBox(height: 16),
-                  _buildSpeechSettings(),
+                  _buildSpeechSettings(context),
                 ],
               ),
             );
@@ -123,12 +133,13 @@ class _DiceScreenState extends State<DiceScreen> {
 
   Widget _buildNumberDisplay(BuildContext context) {
     final useLiveRegion = !MediaQuery.supportsAnnounceOf(context);
+    final l10n = AppLocalizations.of(context);
     final value = _controller.currentValue;
     final label = switch (_controller.state) {
-      RollState.rolling || RollState.decelerating => 'Házím kostkou.',
-      RollState.done => 'Padlo číslo $value.',
-      RollState.idle when value != null => 'Poslední hod: $value.',
-      RollState.idle => 'Kostka je připravená. Hodit kostkou.',
+      RollState.rolling || RollState.decelerating => l10n.rollingLabel,
+      RollState.done => l10n.resultLabel(value!),
+      RollState.idle when value != null => l10n.lastRollLabel(value),
+      RollState.idle => l10n.readyLabel,
     };
 
     return Semantics(
@@ -153,10 +164,11 @@ class _DiceScreenState extends State<DiceScreen> {
   }
 
   Widget _buildRollButton(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final (label, onTap) = switch (_controller.state) {
       RollState.rolling ||
-      RollState.decelerating => ('Zastavit hod', _controller.toggle),
-      RollState.idle || RollState.done => ('Hodit kostkou', _controller.toggle),
+      RollState.decelerating => (l10n.stopButton, _controller.toggle),
+      RollState.idle || RollState.done => (l10n.rollButton, _controller.toggle),
     };
 
     return Listener(
@@ -181,21 +193,27 @@ class _DiceScreenState extends State<DiceScreen> {
   }
 
   Widget _buildSidesSection(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final sides = _controller.sides;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Počet stran', style: Theme.of(context).textTheme.titleMedium),
+        Text(l10n.sidesSectionTitle, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
           runSpacing: 8,
           children: [
             for (final preset in _presets)
-              ChoiceChip(
-                label: Text('d$preset'),
-                selected: sides == preset,
-                onSelected: (_) => _setSides(preset),
+              MergeSemantics(
+                child: Semantics(
+                  label: l10n.diceDescription(preset),
+                  child: ChoiceChip(
+                    label: ExcludeSemantics(child: Text('d$preset')),
+                    selected: sides == preset,
+                    onSelected: (_) => _setSides(preset),
+                  ),
+                ),
               ),
           ],
         ),
@@ -204,13 +222,14 @@ class _DiceScreenState extends State<DiceScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             IconButton.filledTonal(
-              tooltip: 'Snížit počet stran',
+              tooltip: l10n.decreaseSidesTooltip,
               onPressed: () => _setSides(sides - 1),
               icon: const Icon(Icons.remove),
             ),
             const SizedBox(width: 24),
             Semantics(
-              label: 'Počet stran: $sides',
+              label: l10n.sideCountLabel(sides),
+              liveRegion: !MediaQuery.supportsAnnounceOf(context),
               child: ExcludeSemantics(
                 child: Text(
                   '$sides',
@@ -220,7 +239,7 @@ class _DiceScreenState extends State<DiceScreen> {
             ),
             const SizedBox(width: 24),
             IconButton.filledTonal(
-              tooltip: 'Zvýšit počet stran',
+              tooltip: l10n.increaseSidesTooltip,
               onPressed: () => _setSides(sides + 1),
               icon: const Icon(Icons.add),
             ),
@@ -231,33 +250,37 @@ class _DiceScreenState extends State<DiceScreen> {
   }
 
   void _setSides(int value) {
-    widget.settings.setSides(value.clamp(2, 100));
-    _controller.setSides(widget.settings.value.sides);
+    final clamped = value.clamp(2, 100);
+    if (clamped == _controller.sides) return;
+    widget.settings.setSides(clamped);
+    _controller.setSides(clamped);
+    _announceSides(clamped);
   }
 
   Widget _buildThemeSection(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final themeMode = widget.settings.value.themeMode;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Vzhled', style: Theme.of(context).textTheme.titleMedium),
+        Text(l10n.appearanceTitle, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
           runSpacing: 8,
           children: [
             ChoiceChip(
-              label: const Text('Světlý'),
+              label: Text(l10n.themeLight),
               selected: themeMode == ThemeMode.light,
               onSelected: (_) => widget.settings.setThemeMode(ThemeMode.light),
             ),
             ChoiceChip(
-              label: const Text('Tmavý'),
+              label: Text(l10n.themeDark),
               selected: themeMode == ThemeMode.dark,
               onSelected: (_) => widget.settings.setThemeMode(ThemeMode.dark),
             ),
             ChoiceChip(
-              label: const Text('Systémový'),
+              label: Text(l10n.themeSystem),
               selected: themeMode == ThemeMode.system,
               onSelected: (_) => widget.settings.setThemeMode(ThemeMode.system),
             ),
@@ -267,19 +290,20 @@ class _DiceScreenState extends State<DiceScreen> {
     );
   }
 
-  Widget _buildSpeechSettings() {
+  Widget _buildSpeechSettings(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final settings = widget.settings.value;
     return Column(
       children: [
         SwitchListTile(
-          title: const Text('Vlastní hlas (TTS)'),
-          subtitle: const Text('Kostka mluví i bez aktivní čtečky obrazovky.'),
+          title: Text(l10n.speechTitle),
+          subtitle: Text(l10n.speechSubtitle),
           value: settings.explicitSpeech,
           onChanged: widget.settings.setExplicitSpeech,
         ),
         SwitchListTile(
-          title: const Text('Oznámení pro čtečku obrazovky'),
-          subtitle: const Text('Výsledky oznamuje aktivní čtečka.'),
+          title: Text(l10n.announceTitle),
+          subtitle: Text(l10n.announceSubtitle),
           value: settings.semanticsAnnounce,
           onChanged: widget.settings.setSemanticsAnnounce,
         ),

@@ -1,0 +1,52 @@
+{
+  "@@locale": "en",
+  "appTitle": "Talking dice",
+  "instructions": "Press and hold the button and the die will keep rolling. Release it and it slows down and settles on the result. Pressing a key or activating the die starts the roll; pressing again stops it.",
+  "rollingLabel": "Rolling the die.",
+  "resultLabel": "It rolled {value}.",
+  "@resultLabel": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "lastRollLabel": "Last roll: {value}.",
+  "@lastRollLabel": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "readyLabel": "The die is ready. Roll the die.",
+  "rollButton": "Roll the die",
+  "stopButton": "Stop the roll",
+  "sidesSectionTitle": "Number of sides",
+  "diceDescription": "Die with {sides} sides",
+  "@diceDescription": {
+    "placeholders": {
+      "sides": {
+        "type": "int"
+      }
+    }
+  },
+  "decreaseSidesTooltip": "Decrease the number of sides",
+  "increaseSidesTooltip": "Increase the number of sides",
+  "sideCountLabel": "Number of sides: {sides}",
+  "@sideCountLabel": {
+    "placeholders": {
+      "sides": {
+        "type": "int"
+      }
+    }
+  },
+  "appearanceTitle": "Appearance",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "themeSystem": "System",
+  "speechTitle": "Built-in voice (TTS)",
+  "speechSubtitle": "The die speaks even without an active screen reader.",
+  "announceTitle": "Screen reader announcements",
+  "announceSubtitle": "Results are announced by an active screen reader."
+}

@@ -1,0 +1,52 @@
+{
+  "@@locale": "cs",
+  "appTitle": "Mluvící hrací kostka",
+  "instructions": "Podržte tlačítko a kostka se bude točit. Po uvolnění se zpomalí a zastaví na výsledném čísle. Stiskem klávesy nebo aktivací kostku roztočíte a druhým stiskem zastavíte.",
+  "rollingLabel": "Házím kostkou.",
+  "resultLabel": "Padlo číslo {value}.",
+  "@resultLabel": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "lastRollLabel": "Poslední hod: {value}.",
+  "@lastRollLabel": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+  "readyLabel": "Kostka je připravená. Hodit kostkou.",
+  "rollButton": "Hodit kostkou",
+  "stopButton": "Zastavit hod",
+  "sidesSectionTitle": "Počet stran",
+  "diceDescription": "Kostka s {sides} stranami",
+  "@diceDescription": {
+    "placeholders": {
+      "sides": {
+        "type": "int"
+      }
+    }
+  },
+  "decreaseSidesTooltip": "Snížit počet stran",
+  "increaseSidesTooltip": "Zvýšit počet stran",
+  "sideCountLabel": "Počet stran: {sides}",
+  "@sideCountLabel": {
+    "placeholders": {
+      "sides": {
+        "type": "int"
+      }
+    }
+  },
+  "appearanceTitle": "Vzhled",
+  "themeLight": "Světlý",
+  "themeDark": "Tmavý",
+  "themeSystem": "Systémový",
+  "speechTitle": "Vlastní hlas (TTS)",
+  "speechSubtitle": "Kostka mluví i bez aktivní čtečky obrazovky.",
+  "announceTitle": "Oznámení pro čtečku obrazovky",
+  "announceSubtitle": "Výsledky oznamuje aktivní čtečka."
+}

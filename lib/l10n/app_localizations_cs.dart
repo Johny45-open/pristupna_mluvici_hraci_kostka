@@ -1,0 +1,83 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for Czech (`cs`).
+class AppLocalizationsCs extends AppLocalizations {
+  AppLocalizationsCs([String locale = 'cs']) : super(locale);
+
+  @override
+  String get appTitle => 'Mluvící hrací kostka';
+
+  @override
+  String get instructions =>
+      'Podržte tlačítko a kostka se bude točit. Po uvolnění se zpomalí a zastaví na výsledném čísle. Stiskem klávesy nebo aktivací kostku roztočíte a druhým stiskem zastavíte.';
+
+  @override
+  String get rollingLabel => 'Házím kostkou.';
+
+  @override
+  String resultLabel(int value) {
+    return 'Padlo číslo $value.';
+  }
+
+  @override
+  String lastRollLabel(int value) {
+    return 'Poslední hod: $value.';
+  }
+
+  @override
+  String get readyLabel => 'Kostka je připravená. Hodit kostkou.';
+
+  @override
+  String get rollButton => 'Hodit kostkou';
+
+  @override
+  String get stopButton => 'Zastavit hod';
+
+  @override
+  String get sidesSectionTitle => 'Počet stran';
+
+  @override
+  String diceDescription(int sides) {
+    return 'Kostka s $sides stranami';
+  }
+
+  @override
+  String get decreaseSidesTooltip => 'Snížit počet stran';
+
+  @override
+  String get increaseSidesTooltip => 'Zvýšit počet stran';
+
+  @override
+  String sideCountLabel(int sides) {
+    return 'Počet stran: $sides';
+  }
+
+  @override
+  String get appearanceTitle => 'Vzhled';
+
+  @override
+  String get themeLight => 'Světlý';
+
+  @override
+  String get themeDark => 'Tmavý';
+
+  @override
+  String get themeSystem => 'Systémový';
+
+  @override
+  String get speechTitle => 'Vlastní hlas (TTS)';
+
+  @override
+  String get speechSubtitle => 'Kostka mluví i bez aktivní čtečky obrazovky.';
+
+  @override
+  String get announceTitle => 'Oznámení pro čtečku obrazovky';
+
+  @override
+  String get announceSubtitle => 'Výsledky oznamuje aktivní čtečka.';
+}
