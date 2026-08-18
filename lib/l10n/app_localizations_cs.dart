@@ -75,6 +75,23 @@ class AppLocalizationsCs extends AppLocalizations {
   }
 
   @override
+  String get decelerationSectionTitle => 'Zpomalení hodu';
+
+  @override
+  String get decelerationFast => 'Rychlé';
+
+  @override
+  String get decelerationNormal => 'Normální';
+
+  @override
+  String get decelerationSlow => 'Pozvolné';
+
+  @override
+  String decelerationLabel(String speed) {
+    return 'Zpomalení hodu: $speed';
+  }
+
+  @override
   String get appearanceTitle => 'Vzhled';
 
   @override

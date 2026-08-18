@@ -184,4 +184,75 @@ void main() {
       fast.dispose();
     });
   });
+
+  test('setDeceleration updates the growth factor', () {
+    fakeAsync((async) {
+      final controller = DiceController(random: Random(10));
+      expect(controller.deceleration, DecelerationSpeed.normal);
+      expect(controller.decelerationGrowth, 1.25);
+
+      controller.setDeceleration(DecelerationSpeed.slow);
+      expect(controller.deceleration, DecelerationSpeed.slow);
+      expect(controller.decelerationGrowth, 1.12);
+
+      controller.setDeceleration(DecelerationSpeed.fast);
+      expect(controller.deceleration, DecelerationSpeed.fast);
+      expect(controller.decelerationGrowth, 1.6);
+
+      controller.dispose();
+    });
+  });
+
+  test('setDeceleration with the same value does nothing', () {
+    fakeAsync((async) {
+      final controller = DiceController(random: Random(11));
+      var notifications = 0;
+      controller.addListener(() => notifications++);
+
+      controller.setDeceleration(DecelerationSpeed.normal);
+      expect(notifications, 0);
+
+      controller.dispose();
+    });
+  });
+
+  test('a slow deceleration settles later than a fast one', () {
+    fakeAsync((async) {
+      final slow =
+          DiceController(random: Random(12), deceleration: DecelerationSpeed.slow);
+      final fast =
+          DiceController(random: Random(13), deceleration: DecelerationSpeed.fast);
+
+      Duration? slowSettledAt;
+      Duration? fastSettledAt;
+      var slowTime = Duration.zero;
+      var fastTime = Duration.zero;
+      slow.onResult = (_) => slowSettledAt = slowTime;
+      fast.onResult = (_) => fastSettledAt = fastTime;
+
+      slow.start();
+      fast.start();
+
+      void advance(Duration step) {
+        async.elapse(step);
+        slowTime += step;
+        fastTime += step;
+      }
+
+      advance(const Duration(milliseconds: 100));
+      slow.stop();
+      fast.stop();
+
+      while (slowSettledAt == null || fastSettledAt == null) {
+        advance(const Duration(milliseconds: 50));
+      }
+
+      expect(slowSettledAt!, greaterThan(fastSettledAt!));
+      expect(fastSettledAt!, lessThan(const Duration(seconds: 3)));
+      expect(slowSettledAt!, greaterThan(const Duration(seconds: 3)));
+
+      slow.dispose();
+      fast.dispose();
+    });
+  });
 }

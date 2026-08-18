@@ -245,6 +245,36 @@ void main() {
     expect(speech.announced, contains('Rychlost hodu: Rychlá.'));
   });
 
+  testWidgets('deceleration chips update the deceleration', (tester) async {
+    final controller = DiceController(random: Random(1), sides: 6);
+    final settings = SettingsController(const Settings());
+    await pumpScreen(tester, controller: controller, settings: settings);
+
+    await tester.ensureVisible(find.text('Rychlé'));
+    await tester.pump();
+    await tester.tap(find.text('Rychlé'));
+    await tester.pump();
+    expect(settings.value.deceleration, DecelerationSpeed.fast);
+    expect(controller.deceleration, DecelerationSpeed.fast);
+    expect(controller.decelerationGrowth, 1.6);
+
+    await tester.tap(find.text('Pozvolné'));
+    await tester.pump();
+    expect(settings.value.deceleration, DecelerationSpeed.slow);
+    expect(controller.deceleration, DecelerationSpeed.slow);
+  });
+
+  testWidgets('deceleration chips announce the new speed', (tester) async {
+    final speech = await pumpScreen(tester);
+
+    await tester.ensureVisible(find.text('Pozvolné'));
+    await tester.pump();
+    await tester.tap(find.text('Pozvolné'));
+    await tester.pump();
+
+    expect(speech.announced, contains('Zpomalení hodu: Pozvolné.'));
+  });
+
   test('roll speed is persisted and restored', () async {
     SharedPreferences.setMockInitialValues({});
     final settings = SettingsController(const Settings());
@@ -255,6 +285,18 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final defaults = await SettingsController.load();
     expect(defaults.value.rollSpeed, RollSpeed.normal);
+  });
+
+  test('deceleration is persisted and restored', () async {
+    SharedPreferences.setMockInitialValues({});
+    final settings = SettingsController(const Settings());
+    await settings.setDeceleration(DecelerationSpeed.slow);
+    final reloaded = await SettingsController.load();
+    expect(reloaded.value.deceleration, DecelerationSpeed.slow);
+
+    SharedPreferences.setMockInitialValues({});
+    final defaults = await SettingsController.load();
+    expect(defaults.value.deceleration, DecelerationSpeed.normal);
   });
 }
 

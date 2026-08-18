@@ -206,6 +206,36 @@ abstract class AppLocalizations {
   /// **'Rychlost hodu: {speed}'**
   String speedLabel(String speed);
 
+  /// No description provided for @decelerationSectionTitle.
+  ///
+  /// In cs, this message translates to:
+  /// **'Zpomalení hodu'**
+  String get decelerationSectionTitle;
+
+  /// No description provided for @decelerationFast.
+  ///
+  /// In cs, this message translates to:
+  /// **'Rychlé'**
+  String get decelerationFast;
+
+  /// No description provided for @decelerationNormal.
+  ///
+  /// In cs, this message translates to:
+  /// **'Normální'**
+  String get decelerationNormal;
+
+  /// No description provided for @decelerationSlow.
+  ///
+  /// In cs, this message translates to:
+  /// **'Pozvolné'**
+  String get decelerationSlow;
+
+  /// No description provided for @decelerationLabel.
+  ///
+  /// In cs, this message translates to:
+  /// **'Zpomalení hodu: {speed}'**
+  String decelerationLabel(String speed);
+
   /// No description provided for @appearanceTitle.
   ///
   /// In cs, this message translates to:

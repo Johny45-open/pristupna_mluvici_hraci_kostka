@@ -8,6 +8,7 @@ class Settings {
   const Settings({
     this.sides = 6,
     this.rollSpeed = RollSpeed.normal,
+    this.deceleration = DecelerationSpeed.normal,
     this.explicitSpeech = true,
     this.semanticsAnnounce = true,
     this.themeMode = ThemeMode.system,
@@ -15,6 +16,7 @@ class Settings {
 
   final int sides;
   final RollSpeed rollSpeed;
+  final DecelerationSpeed deceleration;
   final bool explicitSpeech;
   final bool semanticsAnnounce;
   final ThemeMode themeMode;
@@ -22,6 +24,7 @@ class Settings {
   Settings copyWith({
     int? sides,
     RollSpeed? rollSpeed,
+    DecelerationSpeed? deceleration,
     bool? explicitSpeech,
     bool? semanticsAnnounce,
     ThemeMode? themeMode,
@@ -29,6 +32,7 @@ class Settings {
     return Settings(
       sides: sides ?? this.sides,
       rollSpeed: rollSpeed ?? this.rollSpeed,
+      deceleration: deceleration ?? this.deceleration,
       explicitSpeech: explicitSpeech ?? this.explicitSpeech,
       semanticsAnnounce: semanticsAnnounce ?? this.semanticsAnnounce,
       themeMode: themeMode ?? this.themeMode,
@@ -37,6 +41,7 @@ class Settings {
 
   static const String _sidesKey = 'dice_sides';
   static const String _rollSpeedKey = 'roll_speed';
+  static const String _decelerationKey = 'deceleration_speed';
   static const String _speechKey = 'explicit_speech';
   static const String _semanticsKey = 'semantics_announce';
   static const String _themeKey = 'theme_mode';
@@ -45,6 +50,7 @@ class Settings {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_sidesKey, sides);
     await prefs.setInt(_rollSpeedKey, rollSpeed.index);
+    await prefs.setInt(_decelerationKey, deceleration.index);
     await prefs.setBool(_speechKey, explicitSpeech);
     await prefs.setBool(_semanticsKey, semanticsAnnounce);
     await prefs.setInt(_themeKey, themeMode.index);
@@ -54,9 +60,13 @@ class Settings {
     final prefs = await SharedPreferences.getInstance();
     final themeIndex = prefs.getInt(_themeKey) ?? ThemeMode.system.index;
     final speedIndex = prefs.getInt(_rollSpeedKey) ?? RollSpeed.normal.index;
+    final decelerationIndex =
+        prefs.getInt(_decelerationKey) ?? DecelerationSpeed.normal.index;
     return Settings(
       sides: prefs.getInt(_sidesKey) ?? 6,
       rollSpeed: RollSpeed.values[speedIndex.clamp(0, RollSpeed.values.length - 1)],
+      deceleration: DecelerationSpeed.values[
+          decelerationIndex.clamp(0, DecelerationSpeed.values.length - 1)],
       explicitSpeech: prefs.getBool(_speechKey) ?? true,
       semanticsAnnounce: prefs.getBool(_semanticsKey) ?? true,
       themeMode: ThemeMode.values[themeIndex.clamp(0, ThemeMode.values.length - 1)],
@@ -82,6 +92,13 @@ class SettingsController extends ChangeNotifier {
   Future<void> setRollSpeed(RollSpeed value) async {
     if (value == _settings.rollSpeed) return;
     _settings = _settings.copyWith(rollSpeed: value);
+    notifyListeners();
+    await _settings.save();
+  }
+
+  Future<void> setDeceleration(DecelerationSpeed value) async {
+    if (value == _settings.deceleration) return;
+    _settings = _settings.copyWith(deceleration: value);
     notifyListeners();
     await _settings.save();
   }

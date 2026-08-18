@@ -53,6 +53,18 @@
       }
     }
   },
+  "decelerationSectionTitle": "Zpomalení hodu",
+  "decelerationFast": "Rychlé",
+  "decelerationNormal": "Normální",
+  "decelerationSlow": "Pozvolné",
+  "decelerationLabel": "Zpomalení hodu: {speed}",
+  "@decelerationLabel": {
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
   "appearanceTitle": "Vzhled",
   "themeLight": "Světlý",
   "themeDark": "Tmavý",

@@ -121,6 +121,8 @@ class _DiceScreenState extends State<DiceScreen> {
                   const SizedBox(height: 24),
                   _buildRollSpeedSection(context),
                   const SizedBox(height: 24),
+                  _buildDecelerationSection(context),
+                  const SizedBox(height: 24),
                   _buildThemeSection(context),
                   const SizedBox(height: 16),
                   _buildSpeechSettings(context),
@@ -286,6 +288,33 @@ class _DiceScreenState extends State<DiceScreen> {
     _announceSpeed(value);
   }
 
+  String _decelerationName(BuildContext context, DecelerationSpeed speed) {
+    final l10n = AppLocalizations.of(context);
+    return switch (speed) {
+      DecelerationSpeed.fast => l10n.decelerationFast,
+      DecelerationSpeed.normal => l10n.decelerationNormal,
+      DecelerationSpeed.slow => l10n.decelerationSlow,
+    };
+  }
+
+  Future<void> _announceDeceleration(DecelerationSpeed speed) async {
+    if (!mounted) return;
+    final settings = widget.settings.value;
+    await _speech.announceDeceleration(
+      context,
+      _decelerationName(context, speed),
+      explicitSpeech: settings.explicitSpeech,
+      semanticsAnnounce: settings.semanticsAnnounce,
+    );
+  }
+
+  void _setDeceleration(DecelerationSpeed value) {
+    if (value == widget.settings.value.deceleration) return;
+    widget.settings.setDeceleration(value);
+    _controller.setDeceleration(value);
+    _announceDeceleration(value);
+  }
+
   Widget _buildRollSpeedSection(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final speed = widget.settings.value.rollSpeed;
@@ -311,6 +340,40 @@ class _DiceScreenState extends State<DiceScreen> {
                     ),
                     selected: speed == option,
                     onSelected: (_) => _setRollSpeed(option),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDecelerationSection(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final speed = widget.settings.value.deceleration;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.decelerationSectionTitle,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final option in DecelerationSpeed.values)
+              MergeSemantics(
+                child: Semantics(
+                  label: l10n.decelerationLabel(_decelerationName(context, option)),
+                  child: ChoiceChip(
+                    label: ExcludeSemantics(
+                      child: Text(_decelerationName(context, option)),
+                    ),
+                    selected: speed == option,
+                    onSelected: (_) => _setDeceleration(option),
                   ),
                 ),
               ),

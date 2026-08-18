@@ -30,6 +30,7 @@ class _AppState extends State<App> {
     _controller = DiceController(
       sides: widget.settings.value.sides,
       rollSpeed: widget.settings.value.rollSpeed,
+      deceleration: widget.settings.value.deceleration,
     );
   }
 

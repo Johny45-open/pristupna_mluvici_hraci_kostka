@@ -75,6 +75,23 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get decelerationSectionTitle => 'Deceleration';
+
+  @override
+  String get decelerationFast => 'Fast';
+
+  @override
+  String get decelerationNormal => 'Normal';
+
+  @override
+  String get decelerationSlow => 'Gradual';
+
+  @override
+  String decelerationLabel(String speed) {
+    return 'Deceleration: $speed';
+  }
+
+  @override
   String get appearanceTitle => 'Appearance';
 
   @override

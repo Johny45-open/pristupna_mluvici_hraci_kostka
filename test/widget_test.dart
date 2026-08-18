@@ -38,6 +38,7 @@ void main() {
     expect(find.text('Hodit kostkou'), findsOneWidget);
     expect(find.text('Počet stran'), findsOneWidget);
     expect(find.text('Rychlost hodu'), findsOneWidget);
+    expect(find.text('Zpomalení hodu'), findsOneWidget);
     expect(find.text('Vzhled'), findsOneWidget);
   });
 

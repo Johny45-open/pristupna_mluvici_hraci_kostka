@@ -30,6 +30,21 @@ enum RollSpeed {
   final Duration decelerationStart;
 }
 
+/// Presets controlling how gradually the dice slows down after release.
+///
+/// The growth factor decides how much each deceleration step is delayed.
+/// A small growth keeps the dice visibly changing for longer; a large growth
+/// settles it almost immediately.
+enum DecelerationSpeed {
+  fast(growth: 1.6),
+  normal(growth: 1.25),
+  slow(growth: 1.12);
+
+  const DecelerationSpeed({required this.growth});
+
+  final double growth;
+}
+
 /// State machine driving the dice.
 ///
 /// * Pointer press  -> [start] (numbers keep changing while held).
@@ -40,25 +55,28 @@ class DiceController extends ChangeNotifier {
     Random? random,
     this.sides = 6,
     RollSpeed rollSpeed = RollSpeed.normal,
-    this.decelerationGrowth = 1.25,
+    DecelerationSpeed deceleration = DecelerationSpeed.normal,
     this.maxDecelerationInterval = const Duration(milliseconds: 700),
     this.onRollStart,
     this.onResult,
   })  : _random = random ?? Random(),
         _rollSpeed = rollSpeed,
+        _deceleration = deceleration,
         rollInterval = rollSpeed.rollInterval,
-        decelerationStart = rollSpeed.decelerationStart;
+        decelerationStart = rollSpeed.decelerationStart,
+        decelerationGrowth = deceleration.growth;
 
   static const int minSides = 2;
   static const int maxSides = 100;
 
   final Random _random;
-  final double decelerationGrowth;
   final Duration maxDecelerationInterval;
 
   RollSpeed _rollSpeed;
+  DecelerationSpeed _deceleration;
   Duration rollInterval;
   Duration decelerationStart;
+  double decelerationGrowth;
 
   /// Called when a new roll starts.
   VoidCallback? onRollStart;
@@ -95,6 +113,17 @@ class DiceController extends ChangeNotifier {
     _rollSpeed = value;
     rollInterval = value.rollInterval;
     decelerationStart = value.decelerationStart;
+    notifyListeners();
+  }
+
+  DecelerationSpeed get deceleration => _deceleration;
+
+  /// Changes how gradually the dice settles. Takes effect from the next roll;
+  /// a roll already slowing down keeps its current deceleration.
+  void setDeceleration(DecelerationSpeed value) {
+    if (value == _deceleration) return;
+    _deceleration = value;
+    decelerationGrowth = value.growth;
     notifyListeners();
   }
 

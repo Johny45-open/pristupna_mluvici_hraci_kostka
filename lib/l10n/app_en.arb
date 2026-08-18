@@ -53,6 +53,18 @@
       }
     }
   },
+  "decelerationSectionTitle": "Deceleration",
+  "decelerationFast": "Fast",
+  "decelerationNormal": "Normal",
+  "decelerationSlow": "Gradual",
+  "decelerationLabel": "Deceleration: {speed}",
+  "@decelerationLabel": {
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
   "appearanceTitle": "Appearance",
   "themeLight": "Light",
   "themeDark": "Dark",
