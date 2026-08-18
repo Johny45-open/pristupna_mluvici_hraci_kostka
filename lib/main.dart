@@ -7,14 +7,14 @@ import 'settings.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final settings = await Settings.load();
+  final settings = await SettingsController.load();
   runApp(App(settings: settings));
 }
 
 class App extends StatefulWidget {
   const App({super.key, required this.settings});
 
-  final Settings settings;
+  final SettingsController settings;
 
   @override
   State<App> createState() => _AppState();
@@ -26,7 +26,7 @@ class _AppState extends State<App> {
   @override
   void initState() {
     super.initState();
-    _controller = DiceController(sides: widget.settings.sides);
+    _controller = DiceController(sides: widget.settings.value.sides);
   }
 
   @override
@@ -37,26 +37,35 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Mluvící hrací kostka',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.teal,
-          brightness: Brightness.dark,
-        ),
-      ),
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [Locale('cs'), Locale('en')],
-      locale: const Locale('cs'),
-      home: DiceScreen(
-        controller: _controller,
-        settings: widget.settings,
-      ),
+    return ListenableBuilder(
+      listenable: widget.settings,
+      builder: (context, _) {
+        return MaterialApp(
+          title: 'Mluvící hrací kostka',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+          ),
+          darkTheme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.teal,
+              brightness: Brightness.dark,
+            ),
+          ),
+          themeMode: widget.settings.value.themeMode,
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [Locale('cs'), Locale('en')],
+          locale: const Locale('cs'),
+          home: DiceScreen(
+            controller: _controller,
+            settings: widget.settings,
+          ),
+        );
+      },
     );
   }
 }

@@ -15,7 +15,7 @@ class DiceScreen extends StatefulWidget {
   });
 
   final DiceController controller;
-  final Settings settings;
+  final SettingsController settings;
   final SpeechService? speech;
 
   @override
@@ -27,7 +27,6 @@ class _DiceScreenState extends State<DiceScreen> {
 
   late final DiceController _controller;
   late final SpeechService _speech;
-  late Settings _settings;
 
   RollState? _lastState;
   int? _lastValue;
@@ -37,7 +36,6 @@ class _DiceScreenState extends State<DiceScreen> {
     super.initState();
     _controller = widget.controller;
     _speech = widget.speech ?? SpeechService();
-    _settings = widget.settings;
     _lastState = _controller.state;
     _lastValue = _controller.currentValue;
 
@@ -66,20 +64,22 @@ class _DiceScreenState extends State<DiceScreen> {
 
   Future<void> _announceStart() async {
     if (!mounted) return;
+    final settings = widget.settings.value;
     await _speech.announceStart(
       context,
-      explicitSpeech: _settings.explicitSpeech,
-      semanticsAnnounce: _settings.semanticsAnnounce,
+      explicitSpeech: settings.explicitSpeech,
+      semanticsAnnounce: settings.semanticsAnnounce,
     );
   }
 
   Future<void> _announceResult(int value) async {
     if (!mounted) return;
+    final settings = widget.settings.value;
     await _speech.announceResult(
       context,
       value,
-      explicitSpeech: _settings.explicitSpeech,
-      semanticsAnnounce: _settings.semanticsAnnounce,
+      explicitSpeech: settings.explicitSpeech,
+      semanticsAnnounce: settings.semanticsAnnounce,
     );
   }
 
@@ -89,7 +89,7 @@ class _DiceScreenState extends State<DiceScreen> {
       appBar: AppBar(title: const Text('Mluvící hrací kostka')),
       body: SafeArea(
         child: ListenableBuilder(
-          listenable: _controller,
+          listenable: Listenable.merge([_controller, widget.settings]),
           builder: (context, _) {
             return SingleChildScrollView(
               padding: const EdgeInsets.all(24),
@@ -108,6 +108,8 @@ class _DiceScreenState extends State<DiceScreen> {
                   ),
                   const SizedBox(height: 32),
                   _buildSidesSection(context),
+                  const SizedBox(height: 24),
+                  _buildThemeSection(context),
                   const SizedBox(height: 16),
                   _buildSpeechSettings(),
                 ],
@@ -229,37 +231,57 @@ class _DiceScreenState extends State<DiceScreen> {
   }
 
   void _setSides(int value) {
-    setState(() {
-      _settings = _settings.copyWith(sides: value.clamp(2, 100));
-      _controller.setSides(_settings.sides);
-      _settings.save();
-    });
+    widget.settings.setSides(value.clamp(2, 100));
+    _controller.setSides(widget.settings.value.sides);
+  }
+
+  Widget _buildThemeSection(BuildContext context) {
+    final themeMode = widget.settings.value.themeMode;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Vzhled', style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            ChoiceChip(
+              label: const Text('Světlý'),
+              selected: themeMode == ThemeMode.light,
+              onSelected: (_) => widget.settings.setThemeMode(ThemeMode.light),
+            ),
+            ChoiceChip(
+              label: const Text('Tmavý'),
+              selected: themeMode == ThemeMode.dark,
+              onSelected: (_) => widget.settings.setThemeMode(ThemeMode.dark),
+            ),
+            ChoiceChip(
+              label: const Text('Systémový'),
+              selected: themeMode == ThemeMode.system,
+              onSelected: (_) => widget.settings.setThemeMode(ThemeMode.system),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 
   Widget _buildSpeechSettings() {
+    final settings = widget.settings.value;
     return Column(
       children: [
         SwitchListTile(
           title: const Text('Vlastní hlas (TTS)'),
           subtitle: const Text('Kostka mluví i bez aktivní čtečky obrazovky.'),
-          value: _settings.explicitSpeech,
-          onChanged: (value) {
-            setState(() {
-              _settings = _settings.copyWith(explicitSpeech: value);
-              _settings.save();
-            });
-          },
+          value: settings.explicitSpeech,
+          onChanged: widget.settings.setExplicitSpeech,
         ),
         SwitchListTile(
           title: const Text('Oznámení pro čtečku obrazovky'),
           subtitle: const Text('Výsledky oznamuje aktivní čtečka.'),
-          value: _settings.semanticsAnnounce,
-          onChanged: (value) {
-            setState(() {
-              _settings = _settings.copyWith(semanticsAnnounce: value);
-              _settings.save();
-            });
-          },
+          value: settings.semanticsAnnounce,
+          onChanged: widget.settings.setSemanticsAnnounce,
         ),
       ],
     );

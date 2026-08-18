@@ -5,20 +5,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pristupna_mluvici_hraci_kostka/dice_controller.dart';
 import 'package:pristupna_mluvici_hraci_kostka/dice_screen.dart';
 import 'package:pristupna_mluvici_hraci_kostka/settings.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'fakes.dart';
 
 Future<FakeSpeechService> pumpScreen(
   WidgetTester tester, {
   DiceController? controller,
-  Settings settings = const Settings(),
+  SettingsController? settings,
 }) async {
   final speech = FakeSpeechService();
   await tester.pumpWidget(
     MaterialApp(
       home: DiceScreen(
         controller: controller ?? DiceController(random: Random(1), sides: 6),
-        settings: settings,
+        settings: settings ?? SettingsController(const Settings()),
         speech: speech,
       ),
     ),
@@ -32,6 +33,10 @@ String readDisplay(WidgetTester tester) {
 }
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets('renders the initial state', (tester) async {
     await pumpScreen(tester);
     expect(find.text('Hodit kostkou'), findsOneWidget);
@@ -129,6 +134,25 @@ void main() {
     await gesture.up();
     await tester.pump(const Duration(seconds: 5));
     expect(controllerStateIsDone(tester), isTrue);
+  });
+
+  testWidgets('theme chips update the theme mode', (tester) async {
+    final settings = SettingsController(const Settings());
+    await pumpScreen(tester, settings: settings);
+
+    await tester.ensureVisible(find.text('Tmavý'));
+    await tester.pump();
+    await tester.tap(find.text('Tmavý'));
+    await tester.pump();
+    expect(settings.value.themeMode, ThemeMode.dark);
+
+    await tester.tap(find.text('Světlý'));
+    await tester.pump();
+    expect(settings.value.themeMode, ThemeMode.light);
+
+    await tester.tap(find.text('Systémový'));
+    await tester.pump();
+    expect(settings.value.themeMode, ThemeMode.system);
   });
 }
 
