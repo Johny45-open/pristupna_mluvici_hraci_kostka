@@ -149,5 +149,17 @@
       }
     }
   },
-  "deleteConfirm": "Smazat"
+  "deleteConfirm": "Smazat",
+  "renamePresetTooltip": "Přejmenovat",
+  "renamePresetDialogTitle": "Upravit předvolbu",
+  "spokenNameLabel": "Mluvený název",
+  "spokenNameHint": "Pro TTS a čtečku obrazovky místo názvu. Prázdné = použije se název.",
+  "presetRenamedLabel": "Předvolba {name} upravena.",
+  "@presetRenamedLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

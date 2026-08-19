@@ -186,4 +186,22 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get deleteConfirm => 'Smazat';
+
+  @override
+  String get renamePresetTooltip => 'Přejmenovat';
+
+  @override
+  String get renamePresetDialogTitle => 'Upravit předvolbu';
+
+  @override
+  String get spokenNameLabel => 'Mluvený název';
+
+  @override
+  String get spokenNameHint =>
+      'Pro TTS a čtečku obrazovky místo názvu. Prázdné = použije se název.';
+
+  @override
+  String presetRenamedLabel(String name) {
+    return 'Předvolba $name upravena.';
+  }
 }

@@ -37,6 +37,17 @@ class PresetsController extends ChangeNotifier {
     await _persist();
   }
 
+  /// Replaces the preset currently stored under [currentName] with [updated].
+  /// Also covers renames: after this call the preset is keyed by
+  /// [updated.name]. A no-op when [currentName] is unknown.
+  Future<void> updatePreset(String currentName, DicePreset updated) async {
+    final index = _presets.indexWhere((p) => p.name == currentName);
+    if (index == -1) return;
+    _presets = [..._presets]..[index] = updated;
+    notifyListeners();
+    await _persist();
+  }
+
   Future<void> _persist() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(

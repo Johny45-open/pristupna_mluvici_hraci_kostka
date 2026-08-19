@@ -149,5 +149,17 @@
       }
     }
   },
-  "deleteConfirm": "Delete"
+  "deleteConfirm": "Delete",
+  "renamePresetTooltip": "Rename preset",
+  "renamePresetDialogTitle": "Edit preset",
+  "spokenNameLabel": "Spoken name",
+  "spokenNameHint": "Spoken by the voice and screen reader instead of the name. Leave empty to use the name.",
+  "presetRenamedLabel": "Preset {name} updated.",
+  "@presetRenamedLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

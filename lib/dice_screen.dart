@@ -506,7 +506,7 @@ class _DiceScreenState extends State<DiceScreen> {
             Expanded(
               child: Semantics(
                 label: l10n.presetEntryLabel(
-                  preset.name,
+                  preset.spokenLabel,
                   _presetSummary(context, preset),
                 ),
                 child: ExcludeSemantics(
@@ -530,6 +530,11 @@ class _DiceScreenState extends State<DiceScreen> {
               tooltip: l10n.loadPresetTooltip,
               onPressed: () => _loadPreset(preset),
               icon: const Icon(Icons.play_arrow),
+            ),
+            IconButton(
+              tooltip: l10n.renamePresetTooltip,
+              onPressed: () => _renamePreset(preset),
+              icon: const Icon(Icons.edit_outlined),
             ),
             IconButton(
               tooltip: l10n.deletePresetTooltip,
@@ -582,13 +587,16 @@ class _DiceScreenState extends State<DiceScreen> {
       rollSpeed: widget.settings.value.rollSpeed,
       deceleration: widget.settings.value.deceleration,
     );
-    final message = AppLocalizations.of(context).presetSavedLabel(preset.name);
+    final message =
+        AppLocalizations.of(context).presetSavedLabel(preset.spokenLabel);
     await widget.presets.savePreset(preset);
     await _announceText(message);
   }
 
   Future<void> _loadPreset(DicePreset preset) async {
-    final message = AppLocalizations.of(context).presetLoadedLabel(preset.name);
+    final message = AppLocalizations.of(context).presetLoadedLabel(
+      preset.spokenLabel,
+    );
     await widget.settings.setSides(preset.sides);
     await widget.settings.setRollSpeed(preset.rollSpeed);
     await widget.settings.setDeceleration(preset.deceleration);
@@ -620,8 +628,78 @@ class _DiceScreenState extends State<DiceScreen> {
       },
     );
     if (confirmed != true || !mounted) return;
-    final message = AppLocalizations.of(context).presetDeletedLabel(preset.name);
+    final message = AppLocalizations.of(context).presetDeletedLabel(
+      preset.spokenLabel,
+    );
     await widget.presets.deletePreset(preset.name);
+    await _announceText(message);
+  }
+
+  Future<void> _renamePreset(DicePreset preset) async {
+    final l10n = AppLocalizations.of(context);
+    final nameController = TextEditingController(text: preset.name);
+    final spokenController = TextEditingController(text: preset.spokenName ?? '');
+    final updated = await showDialog<({String name, String? spokenName})>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(l10n.renamePresetDialogTitle),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: l10n.presetNameLabel,
+                  hintText: l10n.presetNameHint,
+                ),
+                onSubmitted: (value) =>
+                    Navigator.pop(dialogContext, (name: value, spokenName: spokenController.text)),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: spokenController,
+                decoration: InputDecoration(
+                  labelText: l10n.spokenNameLabel,
+                  hintText: l10n.spokenNameHint,
+                ),
+                onSubmitted: (value) =>
+                    Navigator.pop(dialogContext, (name: nameController.text, spokenName: value)),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(l10n.cancelButton),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(
+                dialogContext,
+                (name: nameController.text, spokenName: spokenController.text),
+              ),
+              child: Text(l10n.savePresetConfirm),
+            ),
+          ],
+        );
+      },
+    );
+    if (updated == null || !mounted) return;
+    final name = updated.name.trim();
+    if (name.isEmpty) return;
+    final spokenName = updated.spokenName?.trim() ?? '';
+    final renamed = DicePreset(
+      name: name,
+      spokenName: spokenName.isEmpty ? null : spokenName,
+      sides: preset.sides,
+      rollSpeed: preset.rollSpeed,
+      deceleration: preset.deceleration,
+    );
+    final message = AppLocalizations.of(context).presetRenamedLabel(
+      renamed.spokenLabel,
+    );
+    await widget.presets.updatePreset(preset.name, renamed);
     await _announceText(message);
   }
 }

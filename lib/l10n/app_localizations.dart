@@ -397,6 +397,36 @@ abstract class AppLocalizations {
   /// In cs, this message translates to:
   /// **'Smazat'**
   String get deleteConfirm;
+
+  /// No description provided for @renamePresetTooltip.
+  ///
+  /// In cs, this message translates to:
+  /// **'Přejmenovat'**
+  String get renamePresetTooltip;
+
+  /// No description provided for @renamePresetDialogTitle.
+  ///
+  /// In cs, this message translates to:
+  /// **'Upravit předvolbu'**
+  String get renamePresetDialogTitle;
+
+  /// No description provided for @spokenNameLabel.
+  ///
+  /// In cs, this message translates to:
+  /// **'Mluvený název'**
+  String get spokenNameLabel;
+
+  /// No description provided for @spokenNameHint.
+  ///
+  /// In cs, this message translates to:
+  /// **'Pro TTS a čtečku obrazovky místo názvu. Prázdné = použije se název.'**
+  String get spokenNameHint;
+
+  /// No description provided for @presetRenamedLabel.
+  ///
+  /// In cs, this message translates to:
+  /// **'Předvolba {name} upravena.'**
+  String presetRenamedLabel(String name);
 }
 
 class _AppLocalizationsDelegate

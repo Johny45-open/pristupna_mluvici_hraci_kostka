@@ -16,9 +16,48 @@ void main() {
     final decoded = DicePreset.fromJson(preset.toJson());
     expect(decoded, isNotNull);
     expect(decoded!.name, 'd20 pomalé');
+    expect(decoded.spokenName, isNull);
     expect(decoded.sides, 20);
     expect(decoded.rollSpeed, RollSpeed.slow);
     expect(decoded.deceleration, DecelerationSpeed.slow);
+  });
+
+  test('DicePreset round-trips a spoken name and falls back to the name', () {
+    const spoken = DicePreset(
+      name: 'd20',
+      spokenName: 'dvacetistěnná kostka',
+      sides: 20,
+      rollSpeed: RollSpeed.normal,
+      deceleration: DecelerationSpeed.normal,
+    );
+    final decoded = DicePreset.fromJson(spoken.toJson());
+    expect(decoded, isNotNull);
+    expect(decoded!.name, 'd20');
+    expect(decoded.spokenName, 'dvacetistěnná kostka');
+    expect(decoded.spokenLabel, 'dvacetistěnná kostka');
+
+    expect(
+      DicePreset(
+        name: 'x',
+        spokenName: '',
+        sides: 6,
+        rollSpeed: RollSpeed.normal,
+        deceleration: DecelerationSpeed.normal,
+      ).spokenLabel,
+      'x',
+    );
+  });
+
+  test('DicePreset.fromJson tolerates a missing spoken name', () {
+    final decoded = DicePreset.fromJson(const {
+      'name': 'd6',
+      'sides': 6,
+      'rollSpeed': 0,
+      'deceleration': 0,
+    });
+    expect(decoded, isNotNull);
+    expect(decoded!.spokenName, isNull);
+    expect(decoded.spokenLabel, 'd6');
   });
 
   test('DicePreset.fromJson clamps sides and falls back on bad enums', () {
@@ -95,6 +134,44 @@ void main() {
     final controller = PresetsController([preset]);
     await controller.deletePreset('nope');
     expect(controller.presets, hasLength(1));
+  });
+
+  test('updatePreset replaces the preset and persists the change', () async {
+    SharedPreferences.setMockInitialValues({});
+    final controller = PresetsController([preset]);
+    await controller.updatePreset(
+      preset.name,
+      const DicePreset(
+        name: 'd20 svižná',
+        spokenName: 'dvacetistěnná kostka',
+        sides: 20,
+        rollSpeed: RollSpeed.fast,
+        deceleration: DecelerationSpeed.fast,
+      ),
+    );
+    expect(controller.presets, hasLength(1));
+    final updated = controller.presets.single;
+    expect(updated.name, 'd20 svižná');
+    expect(updated.spokenName, 'dvacetistěnná kostka');
+
+    final reloaded = await PresetsController.load();
+    expect(reloaded.presets.single.name, 'd20 svižná');
+    expect(reloaded.presets.single.spokenName, 'dvacetistěnná kostka');
+  });
+
+  test('updatePreset on an unknown name is a no-op', () async {
+    SharedPreferences.setMockInitialValues({});
+    final controller = PresetsController([preset]);
+    await controller.updatePreset(
+      'nope',
+      const DicePreset(
+        name: 'd6',
+        sides: 6,
+        rollSpeed: RollSpeed.normal,
+        deceleration: DecelerationSpeed.normal,
+      ),
+    );
+    expect(controller.presets.single.name, preset.name);
   });
 
   test('load tolerates missing and corrupt storage', () async {

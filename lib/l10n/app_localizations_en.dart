@@ -188,4 +188,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteConfirm => 'Delete';
+
+  @override
+  String get renamePresetTooltip => 'Rename preset';
+
+  @override
+  String get renamePresetDialogTitle => 'Edit preset';
+
+  @override
+  String get spokenNameLabel => 'Spoken name';
+
+  @override
+  String get spokenNameHint =>
+      'Spoken by the voice and screen reader instead of the name. Leave empty to use the name.';
+
+  @override
+  String presetRenamedLabel(String name) {
+    return 'Preset $name updated.';
+  }
 }

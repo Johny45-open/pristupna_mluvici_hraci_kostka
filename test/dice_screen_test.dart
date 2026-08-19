@@ -433,6 +433,115 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets('renaming a preset updates its name, persists and announces',
+      (tester) async {
+    final presets = PresetsController([
+      const DicePreset(
+        name: 'd6',
+        sides: 6,
+        rollSpeed: RollSpeed.normal,
+        deceleration: DecelerationSpeed.normal,
+      ),
+    ]);
+    final speech = await pumpScreen(tester, presets: presets);
+
+    await tester.ensureVisible(find.byTooltip('Přejmenovat'));
+    await tester.tap(find.byTooltip('Přejmenovat'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Upravit předvolbu'), findsOneWidget);
+    expect(
+      tester
+          .widget<TextField>(find.byType(TextField).at(0))
+          .controller
+          ?.text,
+      'd6',
+    );
+
+    await tester.enterText(find.byType(TextField).at(0), 'Moje šestka');
+    await tester.tap(find.text('Uložit'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Moje šestka'), findsOneWidget);
+    expect(presets.presets.single.name, 'Moje šestka');
+    expect(presets.presets.single.spokenName, isNull);
+    expect(speech.announced, contains('Předvolba Moje šestka upravena.'));
+  });
+
+  testWidgets('renaming can set a spoken name that speech announcements use',
+      (tester) async {
+    final presets = PresetsController([
+      const DicePreset(
+        name: 'd20',
+        sides: 20,
+        rollSpeed: RollSpeed.slow,
+        deceleration: DecelerationSpeed.slow,
+      ),
+    ]);
+    final speech = await pumpScreen(tester, presets: presets);
+
+    await tester.ensureVisible(find.byTooltip('Přejmenovat'));
+    await tester.tap(find.byTooltip('Přejmenovat'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byType(TextField).at(1),
+      'dvacetistěnná kostka',
+    );
+    await tester.tap(find.text('Uložit'));
+    await tester.pumpAndSettle();
+
+    expect(presets.presets.single.spokenName, 'dvacetistěnná kostka');
+    expect(speech.announced, contains('Předvolba dvacetistěnná kostka upravena.'));
+
+    await tester.tap(find.byTooltip('Načíst předvolbu'));
+    await tester.pumpAndSettle();
+    expect(
+      speech.announced,
+      contains('Předvolba dvacetistěnná kostka načtena.'),
+    );
+
+    await tester.tap(find.byTooltip('Smazat předvolbu'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Smazat'));
+    await tester.pumpAndSettle();
+    expect(
+      speech.announced,
+      contains('Předvolba dvacetistěnná kostka smazána.'),
+    );
+  });
+
+  testWidgets('preset rows speak the spoken name instead of the visible name',
+      (tester) async {
+    final presets = PresetsController([
+      const DicePreset(
+        name: 'd12',
+        spokenName: 'dvanáctistěnná kostka',
+        sides: 12,
+        rollSpeed: RollSpeed.slow,
+        deceleration: DecelerationSpeed.slow,
+      ),
+    ]);
+    await pumpScreen(tester, presets: presets);
+    final handle = tester.ensureSemantics();
+
+    await tester.ensureVisible(find.byTooltip('Načíst předvolbu'));
+    await tester.pump();
+
+    expect(
+      find.bySemanticsLabel(RegExp(
+        'Předvolba dvanáctistěnná kostka\\. 12 stran, rychlost Pomalá, zpomalení Pozvolné',
+      )),
+      findsOneWidget,
+    );
+    expect(
+      find.bySemanticsLabel(RegExp('Předvolba d12\\.')),
+      findsNothing,
+    );
+
+    handle.dispose();
+  });
+
   testWidgets('presets are restored from storage', (tester) async {
     final presets = PresetsController([
       const DicePreset(
