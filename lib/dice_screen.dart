@@ -608,14 +608,28 @@ class _DiceScreenState extends State<DiceScreen> {
 
   Future<void> _confirmDeletePreset(DicePreset preset) async {
     final l10n = AppLocalizations.of(context);
+    final question =
+        '${l10n.deletePresetDialogTitle} ${l10n.deletePresetDialogContent(preset.spokenLabel)}';
+    var announced = false;
     final confirmed = await showDialog<bool>(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!announced && dialogContext.mounted) {
+            announced = true;
+            _announceText(question);
+          }
+        });
         return AlertDialog(
           title: Text(l10n.deletePresetDialogTitle),
-          content: Text(l10n.deletePresetDialogContent(preset.name)),
+          content: Semantics(
+            liveRegion: !MediaQuery.supportsAnnounceOf(dialogContext),
+            child: Text(l10n.deletePresetDialogContent(preset.spokenLabel)),
+          ),
           actions: [
             TextButton(
+              autofocus: true,
               onPressed: () => Navigator.pop(dialogContext, false),
               child: Text(l10n.cancelButton),
             ),

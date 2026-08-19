@@ -408,6 +408,60 @@ void main() {
     expect(speech.announced, contains('Předvolba Záloha smazána.'));
   });
 
+  testWidgets('delete dialog announces the question and focuses cancel',
+      (tester) async {
+    final presets = PresetsController([
+      const DicePreset(
+        name: 'Záloha',
+        sides: 20,
+        rollSpeed: RollSpeed.normal,
+        deceleration: DecelerationSpeed.normal,
+      ),
+    ]);
+    final speech = await pumpScreen(tester, presets: presets);
+
+    await tester.ensureVisible(find.byTooltip('Smazat předvolbu'));
+    await tester.tap(find.byTooltip('Smazat předvolbu'));
+    await tester.pumpAndSettle();
+
+    expect(
+      speech.announced,
+      contains('Smazat předvolbu? Předvolba Záloha bude trvale smazána.'),
+    );
+    final cancel = tester.widget<TextButton>(
+      find.widgetWithText(TextButton, 'Zrušit'),
+    );
+    expect(cancel.autofocus, isTrue);
+  });
+
+  testWidgets('delete dialog content uses the spoken name', (tester) async {
+    final presets = PresetsController([
+      const DicePreset(
+        name: 'Záloha',
+        spokenName: 'dvacetistěnná kostka',
+        sides: 20,
+        rollSpeed: RollSpeed.normal,
+        deceleration: DecelerationSpeed.normal,
+      ),
+    ]);
+    final speech = await pumpScreen(tester, presets: presets);
+
+    await tester.ensureVisible(find.byTooltip('Smazat předvolbu'));
+    await tester.tap(find.byTooltip('Smazat předvolbu'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Předvolba dvacetistěnná kostka bude trvale smazána.'),
+      findsOneWidget,
+    );
+    expect(
+      speech.announced,
+      contains(
+        'Smazat předvolbu? Předvolba dvacetistěnná kostka bude trvale smazána.',
+      ),
+    );
+  });
+
   testWidgets('preset rows expose a readable semantics label', (tester) async {
     final presets = PresetsController([
       const DicePreset(
