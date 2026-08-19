@@ -1,6 +1,9 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'dice_controller.dart';
 import 'dice_preset.dart';
@@ -8,6 +11,7 @@ import 'l10n/app_localizations.dart';
 import 'presets.dart';
 import 'settings.dart';
 import 'speech_service.dart';
+import 'update_checker.dart';
 
 class DiceScreen extends StatefulWidget {
   const DiceScreen({
@@ -16,12 +20,14 @@ class DiceScreen extends StatefulWidget {
     required this.settings,
     required this.presets,
     this.speech,
+    this.updateController,
   });
 
   final DiceController controller;
   final SettingsController settings;
   final PresetsController presets;
   final SpeechService? speech;
+  final UpdateController? updateController;
 
   @override
   State<DiceScreen> createState() => _DiceScreenState();
@@ -32,6 +38,8 @@ class _DiceScreenState extends State<DiceScreen> {
 
   late final DiceController _controller;
   late final SpeechService _speech;
+  late final UpdateController _updateController;
+  bool _ownsUpdateController = false;
 
   RollState? _lastState;
   int? _lastValue;
@@ -44,14 +52,33 @@ class _DiceScreenState extends State<DiceScreen> {
     _lastState = _controller.state;
     _lastValue = _controller.currentValue;
 
+    if (widget.updateController != null) {
+      _updateController = widget.updateController!;
+    } else {
+      _ownsUpdateController = true;
+      _updateController = UpdateController(
+        service: GitHubUpdateService(),
+        currentVersion: () async {
+          final info = await PackageInfo.fromPlatform();
+          return info.version;
+        },
+        prefs: SharedPreferences.getInstance,
+      );
+    }
+
     _controller.onRollStart = _announceStart;
     _controller.onResult = _announceResult;
     _controller.addListener(_onControllerChanged);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => _autoCheck());
   }
 
   @override
   void dispose() {
     _controller.removeListener(_onControllerChanged);
+    if (_ownsUpdateController) {
+      _updateController.dispose();
+    }
     super.dispose();
   }
 
@@ -65,6 +92,101 @@ class _DiceScreenState extends State<DiceScreen> {
     }
     _lastState = _controller.state;
     _lastValue = _controller.currentValue;
+  }
+
+  Future<void> _autoCheck() async {
+    if (!mounted) return;
+    final result = await _updateController.check();
+    if (result is! UpdateAvailable) return;
+    if (await _updateController.wasNotified(result.info.version)) return;
+    await _updateController.markNotified(result.info.version);
+    if (!mounted) return;
+    await _showUpdateDialog(result.info);
+  }
+
+  Future<void> _manualCheck() async {
+    await _announceText(AppLocalizations.of(context).checkingUpdatesLabel);
+    final result = await _updateController.check();
+    if (!mounted) return;
+    switch (result) {
+      case UpdateAvailable(:final info):
+        await _updateController.markNotified(info.version);
+        await _showUpdateDialog(info);
+      case UpdateUpToDate():
+        _showFeedback(AppLocalizations.of(context).upToDateLabel);
+      case UpdateCheckFailed():
+        _showFeedback(AppLocalizations.of(context).updateCheckFailedLabel);
+    }
+  }
+
+  void _showFeedback(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+    _announceText(message);
+  }
+
+  Future<void> _showUpdateDialog(UpdateInfo info) async {
+    final l10n = AppLocalizations.of(context);
+    final summary =
+        '${l10n.updateAvailableTitle}. ${l10n.updateVersionLabel(info.version)}';
+    var announced = false;
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!announced && dialogContext.mounted) {
+            announced = true;
+            _announceText(summary);
+          }
+        });
+        return AlertDialog(
+          title: Text(l10n.updateAvailableTitle),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.updateVersionLabel(info.version),
+                  style: Theme.of(dialogContext).textTheme.titleSmall,
+                ),
+                const SizedBox(height: 8),
+                Semantics(
+                  liveRegion: !MediaQuery.supportsAnnounceOf(dialogContext),
+                  child: Text(
+                    info.notes.isEmpty ? l10n.noReleaseNotesLabel : info.notes,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(l10n.cancelButton),
+            ),
+            FilledButton(
+              onPressed: () => _openReleaseLink(dialogContext, info.url),
+              child: Text(l10n.openInBrowserButton),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _openReleaseLink(BuildContext dialogContext, String url) async {
+    try {
+      final launched = await launchUrl(
+        Uri.parse(url),
+        mode: LaunchMode.externalApplication,
+      );
+      if (!launched) throw Exception('Launch failed');
+    } catch (_) {
+      if (!mounted) return;
+      _showFeedback(AppLocalizations.of(context).updateLinkFailedLabel);
+    }
   }
 
   Future<void> _announceStart() async {
@@ -102,7 +224,29 @@ class _DiceScreenState extends State<DiceScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context).appTitle)),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context).appTitle),
+        actions: [
+          ListenableBuilder(
+            listenable: _updateController,
+            builder: (context, _) {
+              final checking =
+                  _updateController.status == UpdateStatus.checking;
+              return IconButton(
+                tooltip: AppLocalizations.of(context).updatesTooltip,
+                onPressed: checking ? null : _manualCheck,
+                icon: checking
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.system_update_alt_outlined),
+              );
+            },
+          ),
+        ],
+      ),
       body: SafeArea(
         child: ListenableBuilder(
           listenable: Listenable.merge([_controller, widget.settings, widget.presets]),

@@ -161,5 +161,21 @@
         "type": "String"
       }
     }
-  }
+  },
+  "updatesTooltip": "Zkontrolovat aktualizace",
+  "checkingUpdatesLabel": "Kontroluji aktualizace…",
+  "updateAvailableTitle": "K dispozici je nová verze",
+  "updateVersionLabel": "Verze {version}",
+  "@updateVersionLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "noReleaseNotesLabel": "Autor vydání nepřidal žádné poznámky.",
+  "openInBrowserButton": "Otevřít v prohlížeči",
+  "upToDateLabel": "Máte nejnovější verzi.",
+  "updateCheckFailedLabel": "Aktualizace se nepodařilo zkontrolovat. Zkuste to později.",
+  "updateLinkFailedLabel": "Odkaz se nepodařilo otevřít."
 }

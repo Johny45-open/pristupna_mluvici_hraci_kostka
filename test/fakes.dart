@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pristupna_mluvici_hraci_kostka/speech_service.dart';
+import 'package:pristupna_mluvici_hraci_kostka/update_checker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NoopTts implements TtsAdapter {
   @override
@@ -84,4 +86,30 @@ class FakeSpeechService extends SpeechService {
   }) async {
     announced.add(text);
   }
+}
+
+class FakeUpdateService implements UpdateService {
+  FakeUpdateService({this.latest, this.error});
+
+  final UpdateInfo? latest;
+  final Object? error;
+  int calls = 0;
+
+  @override
+  Future<UpdateInfo?> fetchLatest() async {
+    calls++;
+    if (error != null) throw error!;
+    return latest;
+  }
+}
+
+UpdateController makeUpdateController({
+  UpdateService? service,
+  String currentVersion = '1.7.0',
+}) {
+  return UpdateController(
+    service: service ?? FakeUpdateService(),
+    currentVersion: () async => currentVersion,
+    prefs: SharedPreferences.getInstance,
+  );
 }

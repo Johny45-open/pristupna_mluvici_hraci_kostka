@@ -204,4 +204,34 @@ class AppLocalizationsCs extends AppLocalizations {
   String presetRenamedLabel(String name) {
     return 'Předvolba $name upravena.';
   }
+
+  @override
+  String get updatesTooltip => 'Zkontrolovat aktualizace';
+
+  @override
+  String get checkingUpdatesLabel => 'Kontroluji aktualizace…';
+
+  @override
+  String get updateAvailableTitle => 'K dispozici je nová verze';
+
+  @override
+  String updateVersionLabel(String version) {
+    return 'Verze $version';
+  }
+
+  @override
+  String get noReleaseNotesLabel => 'Autor vydání nepřidal žádné poznámky.';
+
+  @override
+  String get openInBrowserButton => 'Otevřít v prohlížeči';
+
+  @override
+  String get upToDateLabel => 'Máte nejnovější verzi.';
+
+  @override
+  String get updateCheckFailedLabel =>
+      'Aktualizace se nepodařilo zkontrolovat. Zkuste to později.';
+
+  @override
+  String get updateLinkFailedLabel => 'Odkaz se nepodařilo otevřít.';
 }

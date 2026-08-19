@@ -9,6 +9,7 @@ import 'package:pristupna_mluvici_hraci_kostka/dice_screen.dart';
 import 'package:pristupna_mluvici_hraci_kostka/l10n/app_localizations.dart';
 import 'package:pristupna_mluvici_hraci_kostka/presets.dart';
 import 'package:pristupna_mluvici_hraci_kostka/settings.dart';
+import 'package:pristupna_mluvici_hraci_kostka/update_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'fakes.dart';
@@ -18,6 +19,7 @@ Future<FakeSpeechService> pumpScreen(
   DiceController? controller,
   SettingsController? settings,
   PresetsController? presets,
+  UpdateController? updateController,
 }) async {
   final speech = FakeSpeechService();
   await tester.pumpWidget(
@@ -35,6 +37,7 @@ Future<FakeSpeechService> pumpScreen(
         settings: settings ?? SettingsController(const Settings()),
         presets: presets ?? PresetsController(),
         speech: speech,
+        updateController: updateController ?? makeUpdateController(),
       ),
     ),
   );

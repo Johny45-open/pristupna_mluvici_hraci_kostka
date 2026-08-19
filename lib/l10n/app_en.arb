@@ -161,5 +161,21 @@
         "type": "String"
       }
     }
-  }
+  },
+  "updatesTooltip": "Check for updates",
+  "checkingUpdatesLabel": "Checking for updates…",
+  "updateAvailableTitle": "A new version is available",
+  "updateVersionLabel": "Version {version}",
+  "@updateVersionLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "noReleaseNotesLabel": "The author did not add any release notes.",
+  "openInBrowserButton": "Open in browser",
+  "upToDateLabel": "You are up to date.",
+  "updateCheckFailedLabel": "Could not check for updates. Try again later.",
+  "updateLinkFailedLabel": "Could not open the link."
 }

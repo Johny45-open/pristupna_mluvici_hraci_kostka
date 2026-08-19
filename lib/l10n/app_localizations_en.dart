@@ -206,4 +206,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String presetRenamedLabel(String name) {
     return 'Preset $name updated.';
   }
+
+  @override
+  String get updatesTooltip => 'Check for updates';
+
+  @override
+  String get checkingUpdatesLabel => 'Checking for updates…';
+
+  @override
+  String get updateAvailableTitle => 'A new version is available';
+
+  @override
+  String updateVersionLabel(String version) {
+    return 'Version $version';
+  }
+
+  @override
+  String get noReleaseNotesLabel => 'The author did not add any release notes.';
+
+  @override
+  String get openInBrowserButton => 'Open in browser';
+
+  @override
+  String get upToDateLabel => 'You are up to date.';
+
+  @override
+  String get updateCheckFailedLabel =>
+      'Could not check for updates. Try again later.';
+
+  @override
+  String get updateLinkFailedLabel => 'Could not open the link.';
 }

@@ -427,6 +427,60 @@ abstract class AppLocalizations {
   /// In cs, this message translates to:
   /// **'Předvolba {name} upravena.'**
   String presetRenamedLabel(String name);
+
+  /// No description provided for @updatesTooltip.
+  ///
+  /// In cs, this message translates to:
+  /// **'Zkontrolovat aktualizace'**
+  String get updatesTooltip;
+
+  /// No description provided for @checkingUpdatesLabel.
+  ///
+  /// In cs, this message translates to:
+  /// **'Kontroluji aktualizace…'**
+  String get checkingUpdatesLabel;
+
+  /// No description provided for @updateAvailableTitle.
+  ///
+  /// In cs, this message translates to:
+  /// **'K dispozici je nová verze'**
+  String get updateAvailableTitle;
+
+  /// No description provided for @updateVersionLabel.
+  ///
+  /// In cs, this message translates to:
+  /// **'Verze {version}'**
+  String updateVersionLabel(String version);
+
+  /// No description provided for @noReleaseNotesLabel.
+  ///
+  /// In cs, this message translates to:
+  /// **'Autor vydání nepřidal žádné poznámky.'**
+  String get noReleaseNotesLabel;
+
+  /// No description provided for @openInBrowserButton.
+  ///
+  /// In cs, this message translates to:
+  /// **'Otevřít v prohlížeči'**
+  String get openInBrowserButton;
+
+  /// No description provided for @upToDateLabel.
+  ///
+  /// In cs, this message translates to:
+  /// **'Máte nejnovější verzi.'**
+  String get upToDateLabel;
+
+  /// No description provided for @updateCheckFailedLabel.
+  ///
+  /// In cs, this message translates to:
+  /// **'Aktualizace se nepodařilo zkontrolovat. Zkuste to později.'**
+  String get updateCheckFailedLabel;
+
+  /// No description provided for @updateLinkFailedLabel.
+  ///
+  /// In cs, this message translates to:
+  /// **'Odkaz se nepodařilo otevřít.'**
+  String get updateLinkFailedLabel;
 }
 
 class _AppLocalizationsDelegate
