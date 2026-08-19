@@ -163,6 +163,12 @@
     }
   },
   "updatesTooltip": "Check for updates",
+  "newsTooltip": "News",
+  "newsTitle": "News",
+  "newsLoading": "Loading news…",
+  "newsEmpty": "No news available.",
+  "newsFailed": "Could not load the news.",
+  "newsRetryButton": "Try again",
   "checkingUpdatesLabel": "Checking for updates…",
   "updateAvailableTitle": "A new version is available",
   "updateVersionLabel": "Version {version}",

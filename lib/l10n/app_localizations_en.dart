@@ -211,6 +211,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get updatesTooltip => 'Check for updates';
 
   @override
+  String get newsTooltip => 'News';
+
+  @override
+  String get newsTitle => 'News';
+
+  @override
+  String get newsLoading => 'Loading news…';
+
+  @override
+  String get newsEmpty => 'No news available.';
+
+  @override
+  String get newsFailed => 'Could not load the news.';
+
+  @override
+  String get newsRetryButton => 'Try again';
+
+  @override
   String get checkingUpdatesLabel => 'Checking for updates…';
 
   @override

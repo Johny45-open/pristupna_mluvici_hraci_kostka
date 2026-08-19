@@ -434,6 +434,42 @@ abstract class AppLocalizations {
   /// **'Zkontrolovat aktualizace'**
   String get updatesTooltip;
 
+  /// No description provided for @newsTooltip.
+  ///
+  /// In cs, this message translates to:
+  /// **'Novinky'**
+  String get newsTooltip;
+
+  /// No description provided for @newsTitle.
+  ///
+  /// In cs, this message translates to:
+  /// **'Novinky'**
+  String get newsTitle;
+
+  /// No description provided for @newsLoading.
+  ///
+  /// In cs, this message translates to:
+  /// **'Načítám novinky…'**
+  String get newsLoading;
+
+  /// No description provided for @newsEmpty.
+  ///
+  /// In cs, this message translates to:
+  /// **'Žádné novinky nejsou k dispozici.'**
+  String get newsEmpty;
+
+  /// No description provided for @newsFailed.
+  ///
+  /// In cs, this message translates to:
+  /// **'Novinky se nepodařilo načíst.'**
+  String get newsFailed;
+
+  /// No description provided for @newsRetryButton.
+  ///
+  /// In cs, this message translates to:
+  /// **'Zkusit znovu'**
+  String get newsRetryButton;
+
   /// No description provided for @checkingUpdatesLabel.
   ///
   /// In cs, this message translates to:

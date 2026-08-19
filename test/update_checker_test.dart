@@ -88,6 +88,115 @@ void main() {
     });
   });
 
+  group('GitHubUpdateService.fetchHistory', () {
+    Map<String, Object?> release({
+      required String tag,
+      String body = '',
+      String? publishedAt,
+    }) {
+      return {
+        'tag_name': tag,
+        'name': tag,
+        'body': body,
+        'html_url': 'https://github.com/owner/repo/releases/tag/$tag',
+        if (publishedAt != null) 'published_at': publishedAt,
+      };
+    }
+
+    test('parses the releases list, newest first', () async {
+      final service = GitHubUpdateService(
+        client: MockClient((request) async {
+          expect(request.url.path, '/repos/Johny45-open/pristupna_mluvici_hraci_kostka/releases');
+          expect(request.url.queryParameters['per_page'], '50');
+          return http.Response(
+            jsonEncode([
+              release(tag: 'v2.0.0', body: 'Druhé vydání.', publishedAt: '2024-05-01T10:00:00Z'),
+              release(tag: 'v1.7.0', body: 'První vydání.', publishedAt: '2024-02-10T08:30:00Z'),
+            ]),
+            200,
+            headers: {'content-type': 'application/json'},
+          );
+        }),
+      );
+
+      final history = await service.fetchHistory();
+
+      expect(history, hasLength(2));
+      expect(history[0].version, '2.0.0');
+      expect(history[0].notes, 'Druhé vydání.');
+      expect(history[0].publishedAt, DateTime.utc(2024, 5, 1, 10));
+      expect(history[1].version, '1.7.0');
+    });
+
+    test('returns an empty list when there are no releases (404)', () async {
+      final service = GitHubUpdateService(
+        client: MockClient((_) async => http.Response('', 404)),
+      );
+
+      expect(await service.fetchHistory(), isEmpty);
+    });
+
+    test('throws when there is no cached data and the request fails', () async {
+      final service = GitHubUpdateService(
+        client: MockClient((_) async => http.Response('', 500)),
+      );
+
+      expect(service.fetchHistory(), throwsA(isA<UpdateCheckException>()));
+    });
+
+    test('returns cached releases when the request fails', () async {
+      SharedPreferences.setMockInitialValues({});
+      final cached = [
+        UpdateInfo(
+          version: '1.7.0',
+          title: 'v1.7.0',
+          notes: 'Stará verze.',
+          url: 'https://example.com/releases/v1.7.0',
+          publishedAt: DateTime.utc(2024, 1, 1),
+        ),
+      ];
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        GitHubUpdateService.historyCacheKey,
+        jsonEncode([for (final release in cached) release.toJson()]),
+      );
+
+      final service = GitHubUpdateService(
+        client: MockClient((_) async => http.Response('', 500)),
+        prefs: SharedPreferences.getInstance,
+      );
+
+      final history = await service.fetchHistory();
+
+      expect(history, hasLength(1));
+      expect(history.single.version, '1.7.0');
+      expect(history.single.publishedAt, DateTime.utc(2024, 1, 1));
+    });
+
+    test('caches a successful fetch for later offline reads', () async {
+      SharedPreferences.setMockInitialValues({});
+      var failing = false;
+      final service = GitHubUpdateService(
+        client: MockClient((_) async {
+          if (failing) return http.Response('', 500);
+          return http.Response(
+            jsonEncode([release(tag: 'v2.0.0', body: 'Nové vydání.')]),
+            200,
+            headers: {'content-type': 'application/json'},
+          );
+        }),
+        prefs: SharedPreferences.getInstance,
+      );
+
+      final first = await service.fetchHistory();
+      expect(first.single.version, '2.0.0');
+
+      failing = true;
+      final second = await service.fetchHistory();
+      expect(second.single.version, '2.0.0');
+    });
+  });
+
   group('UpdateController', () {
     setUp(() {
       SharedPreferences.setMockInitialValues({});

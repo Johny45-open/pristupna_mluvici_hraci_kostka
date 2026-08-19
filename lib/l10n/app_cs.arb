@@ -163,6 +163,12 @@
     }
   },
   "updatesTooltip": "Zkontrolovat aktualizace",
+  "newsTooltip": "Novinky",
+  "newsTitle": "Novinky",
+  "newsLoading": "Načítám novinky…",
+  "newsEmpty": "Žádné novinky nejsou k dispozici.",
+  "newsFailed": "Novinky se nepodařilo načíst.",
+  "newsRetryButton": "Zkusit znovu",
   "checkingUpdatesLabel": "Kontroluji aktualizace…",
   "updateAvailableTitle": "K dispozici je nová verze",
   "updateVersionLabel": "Verze {version}",

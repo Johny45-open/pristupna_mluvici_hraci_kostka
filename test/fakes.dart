@@ -89,17 +89,26 @@ class FakeSpeechService extends SpeechService {
 }
 
 class FakeUpdateService implements UpdateService {
-  FakeUpdateService({this.latest, this.error});
+  FakeUpdateService({this.latest, this.history, this.error});
 
   final UpdateInfo? latest;
-  final Object? error;
+  final List<UpdateInfo>? history;
+  Object? error;
   int calls = 0;
+  int historyCalls = 0;
 
   @override
   Future<UpdateInfo?> fetchLatest() async {
     calls++;
     if (error != null) throw error!;
     return latest;
+  }
+
+  @override
+  Future<List<UpdateInfo>> fetchHistory({int perPage = 50}) async {
+    historyCalls++;
+    if (error != null) throw error!;
+    return history ?? const [];
   }
 }
 

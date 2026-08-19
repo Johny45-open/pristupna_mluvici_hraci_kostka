@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'dice_controller.dart';
 import 'dice_preset.dart';
 import 'l10n/app_localizations.dart';
+import 'news_screen.dart';
 import 'presets.dart';
 import 'settings.dart';
 import 'speech_service.dart';
@@ -119,6 +120,20 @@ class _DiceScreenState extends State<DiceScreen> {
     }
   }
 
+  void _openNews() {
+    final settings = widget.settings.value;
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => NewsScreen(
+          service: _updateController.service,
+          speech: _speech,
+          explicitSpeech: settings.explicitSpeech,
+          semanticsAnnounce: settings.semanticsAnnounce,
+        ),
+      ),
+    );
+  }
+
   void _showFeedback(String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -227,6 +242,11 @@ class _DiceScreenState extends State<DiceScreen> {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context).appTitle),
         actions: [
+          IconButton(
+            tooltip: AppLocalizations.of(context).newsTooltip,
+            onPressed: _openNews,
+            icon: const Icon(Icons.history),
+          ),
           ListenableBuilder(
             listenable: _updateController,
             builder: (context, _) {

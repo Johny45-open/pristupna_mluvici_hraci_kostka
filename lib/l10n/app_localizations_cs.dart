@@ -209,6 +209,24 @@ class AppLocalizationsCs extends AppLocalizations {
   String get updatesTooltip => 'Zkontrolovat aktualizace';
 
   @override
+  String get newsTooltip => 'Novinky';
+
+  @override
+  String get newsTitle => 'Novinky';
+
+  @override
+  String get newsLoading => 'Načítám novinky…';
+
+  @override
+  String get newsEmpty => 'Žádné novinky nejsou k dispozici.';
+
+  @override
+  String get newsFailed => 'Novinky se nepodařilo načíst.';
+
+  @override
+  String get newsRetryButton => 'Zkusit znovu';
+
+  @override
   String get checkingUpdatesLabel => 'Kontroluji aktualizace…';
 
   @override
