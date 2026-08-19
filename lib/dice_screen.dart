@@ -696,19 +696,40 @@ class _DiceScreenState extends State<DiceScreen> {
     final controller = TextEditingController(
       text: l10n.presetDefaultName(_controller.sides),
     );
-    final name = await showDialog<String>(
+    final spokenController = TextEditingController();
+    final result = await showDialog<({String name, String? spokenName})>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
           title: Text(l10n.savePresetDialogTitle),
-          content: TextField(
-            controller: controller,
-            autofocus: true,
-            decoration: InputDecoration(
-              labelText: l10n.presetNameLabel,
-              hintText: l10n.presetNameHint,
-            ),
-            onSubmitted: (value) => Navigator.pop(dialogContext, value),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: controller,
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: l10n.presetNameLabel,
+                  hintText: l10n.presetNameHint,
+                ),
+                onSubmitted: (value) => Navigator.pop(
+                  dialogContext,
+                  (name: value, spokenName: spokenController.text),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: spokenController,
+                decoration: InputDecoration(
+                  labelText: l10n.spokenNameLabel,
+                  hintText: l10n.spokenNameHint,
+                ),
+                onSubmitted: (value) => Navigator.pop(
+                  dialogContext,
+                  (name: controller.text, spokenName: value),
+                ),
+              ),
+            ],
           ),
           actions: [
             TextButton(
@@ -716,17 +737,23 @@ class _DiceScreenState extends State<DiceScreen> {
               child: Text(l10n.cancelButton),
             ),
             FilledButton(
-              onPressed: () => Navigator.pop(dialogContext, controller.text),
+              onPressed: () => Navigator.pop(
+                dialogContext,
+                (name: controller.text, spokenName: spokenController.text),
+              ),
               child: Text(l10n.savePresetConfirm),
             ),
           ],
         );
       },
     );
-    final trimmed = name?.trim() ?? '';
-    if (!mounted || trimmed.isEmpty) return;
+    if (result == null || !mounted) return;
+    final name = result.name.trim();
+    if (name.isEmpty) return;
+    final spokenName = result.spokenName?.trim() ?? '';
     final preset = DicePreset(
-      name: trimmed,
+      name: name,
+      spokenName: spokenName.isEmpty ? null : spokenName,
       sides: _controller.sides,
       rollSpeed: widget.settings.value.rollSpeed,
       deceleration: widget.settings.value.deceleration,

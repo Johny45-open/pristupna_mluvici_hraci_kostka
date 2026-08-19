@@ -325,7 +325,7 @@ void main() {
     expect(find.text('Uložit předvolbu'), findsOneWidget);
     expect(find.widgetWithText(TextField, 'd6'), findsOneWidget);
 
-    await tester.enterText(find.byType(TextField), 'Má kostka');
+    await tester.enterText(find.byType(TextField).at(0), 'Má kostka');
     await tester.tap(find.text('Uložit'));
     await tester.pumpAndSettle();
 
@@ -340,11 +340,39 @@ void main() {
     await tester.ensureVisible(find.text('Uložit aktuální nastavení'));
     await tester.tap(find.text('Uložit aktuální nastavení'));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField), 'Moje d6');
+    await tester.enterText(find.byType(TextField).at(0), 'Moje d6');
     await tester.tap(find.text('Uložit'));
     await tester.pumpAndSettle();
 
     expect(speech.announced, contains('Předvolba Moje d6 uložena.'));
+  });
+
+  testWidgets('saving a preset can set a spoken name used in the message',
+      (tester) async {
+    final presets = PresetsController();
+    final speech = await pumpScreen(tester, presets: presets);
+
+    await tester.ensureVisible(find.text('Uložit aktuální nastavení'));
+    await tester.tap(find.text('Uložit aktuální nastavení'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).at(0), 'Moje d6');
+    await tester.enterText(
+      find.byType(TextField).at(1),
+      'moje šestka',
+    );
+    await tester.tap(find.text('Uložit'));
+    await tester.pumpAndSettle();
+
+    expect(presets.presets.single.name, 'Moje d6');
+    expect(presets.presets.single.spokenName, 'moje šestka');
+    expect(speech.announced, contains('Předvolba moje šestka uložena.'));
+
+    await tester.tap(find.byTooltip('Načíst předvolbu'));
+    await tester.pumpAndSettle();
+    expect(
+      speech.announced,
+      contains('Předvolba moje šestka načtena.'),
+    );
   });
 
   testWidgets('loading a preset applies its settings and announces',
