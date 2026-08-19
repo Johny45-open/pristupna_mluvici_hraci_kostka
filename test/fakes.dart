@@ -83,6 +83,7 @@ class FakeSpeechService extends SpeechService {
     String text, {
     required bool explicitSpeech,
     required bool semanticsAnnounce,
+    bool force = false,
   }) async {
     announced.add(text);
   }

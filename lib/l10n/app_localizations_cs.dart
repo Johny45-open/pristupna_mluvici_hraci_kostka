@@ -252,4 +252,21 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get updateLinkFailedLabel => 'Odkaz se nepodařilo otevřít.';
+
+  @override
+  String get readNewsButton => 'Přečíst novinky';
+
+  @override
+  String readNewsSemantics(String version) {
+    return 'Přečíst novinky verze $version';
+  }
+
+  @override
+  String get readAllNewsTooltip => 'Přečíst všechny novinky';
+
+  @override
+  String get stopReadingTooltip => 'Zastavit čtení';
+
+  @override
+  String get noNewsToRead => 'Nemám co přečíst.';
 }

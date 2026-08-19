@@ -517,6 +517,36 @@ abstract class AppLocalizations {
   /// In cs, this message translates to:
   /// **'Odkaz se nepodařilo otevřít.'**
   String get updateLinkFailedLabel;
+
+  /// No description provided for @readNewsButton.
+  ///
+  /// In cs, this message translates to:
+  /// **'Přečíst novinky'**
+  String get readNewsButton;
+
+  /// No description provided for @readNewsSemantics.
+  ///
+  /// In cs, this message translates to:
+  /// **'Přečíst novinky verze {version}'**
+  String readNewsSemantics(String version);
+
+  /// No description provided for @readAllNewsTooltip.
+  ///
+  /// In cs, this message translates to:
+  /// **'Přečíst všechny novinky'**
+  String get readAllNewsTooltip;
+
+  /// No description provided for @stopReadingTooltip.
+  ///
+  /// In cs, this message translates to:
+  /// **'Zastavit čtení'**
+  String get stopReadingTooltip;
+
+  /// No description provided for @noNewsToRead.
+  ///
+  /// In cs, this message translates to:
+  /// **'Nemám co přečíst.'**
+  String get noNewsToRead;
 }
 
 class _AppLocalizationsDelegate

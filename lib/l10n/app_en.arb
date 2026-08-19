@@ -183,5 +183,17 @@
   "openInBrowserButton": "Open in browser",
   "upToDateLabel": "You are up to date.",
   "updateCheckFailedLabel": "Could not check for updates. Try again later.",
-  "updateLinkFailedLabel": "Could not open the link."
+  "updateLinkFailedLabel": "Could not open the link.",
+  "readNewsButton": "Read news",
+  "readNewsSemantics": "Read news for version {version}",
+  "@readNewsSemantics": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "readAllNewsTooltip": "Read all news",
+  "stopReadingTooltip": "Stop reading",
+  "noNewsToRead": "Nothing to read."
 }

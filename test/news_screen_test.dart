@@ -173,4 +173,37 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Hodit kostkou'), findsOneWidget);
   });
+
+  testWidgets('reads specific release notes on button tap', (tester) async {
+    final speech = FakeSpeechService();
+    await pumpNews(
+      tester,
+      service: FakeUpdateService(history: [_latest]),
+      speech: speech,
+    );
+
+    await tester.tap(find.text('Přečíst novinky'));
+    await tester.pumpAndSettle();
+
+    expect(speech.announced, contains('Verze 2.0.0. Nové funkce a opravy.'));
+  });
+
+  testWidgets('reads all release notes on read all button tap', (tester) async {
+    final speech = FakeSpeechService();
+    await pumpNews(
+      tester,
+      service: FakeUpdateService(history: [_latest, _previous]),
+      speech: speech,
+    );
+
+    await tester.tap(find.byTooltip('Přečíst všechny novinky'));
+    await tester.pumpAndSettle();
+
+    expect(
+      speech.announced.any((msg) =>
+          msg.contains('Verze 2.0.0. Nové funkce a opravy.') &&
+          msg.contains('Verze 1.7.0. Oprava hlášení výsledků.')),
+      isTrue,
+    );
+  });
 }

@@ -202,6 +202,7 @@ class SpeechService {
     String text, {
     required bool explicitSpeech,
     required bool semanticsAnnounce,
+    bool force = false,
   }) async {
     final supportsAnnounce = MediaQuery.supportsAnnounceOf(context);
     final accessibleNavigation = MediaQuery.accessibleNavigationOf(context);
@@ -213,9 +214,15 @@ class SpeechService {
         await SemanticsService.sendAnnouncement(view, text, direction);
       } catch (_) {}
     }
-    if (explicitSpeech && !accessibleNavigation) {
+    if (force || (explicitSpeech && !accessibleNavigation)) {
       await _speak(text, locale: locale);
     }
+  }
+
+  Future<void> stop() async {
+    try {
+      await _tts.stop();
+    } catch (_) {}
   }
 
   Future<void> dispose() async {

@@ -183,5 +183,17 @@
   "openInBrowserButton": "Otevřít v prohlížeči",
   "upToDateLabel": "Máte nejnovější verzi.",
   "updateCheckFailedLabel": "Aktualizace se nepodařilo zkontrolovat. Zkuste to později.",
-  "updateLinkFailedLabel": "Odkaz se nepodařilo otevřít."
+  "updateLinkFailedLabel": "Odkaz se nepodařilo otevřít.",
+  "readNewsButton": "Přečíst novinky",
+  "readNewsSemantics": "Přečíst novinky verze {version}",
+  "@readNewsSemantics": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "readAllNewsTooltip": "Přečíst všechny novinky",
+  "stopReadingTooltip": "Zastavit čtení",
+  "noNewsToRead": "Nemám co přečíst."
 }

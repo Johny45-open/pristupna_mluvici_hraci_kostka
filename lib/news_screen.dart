@@ -26,12 +26,21 @@ class NewsScreen extends StatefulWidget {
 
 class _NewsScreenState extends State<NewsScreen> {
   late Future<List<UpdateInfo>> _future;
+  bool _isSpeaking = false;
 
   @override
   void initState() {
     super.initState();
     _future = widget.service.fetchHistory();
     _announceOnLoad();
+  }
+
+  @override
+  void dispose() {
+    if (_isSpeaking) {
+      widget.speech?.stop();
+    }
+    super.dispose();
   }
 
   void _retry() {
@@ -60,11 +69,98 @@ class _NewsScreenState extends State<NewsScreen> {
     });
   }
 
+  Future<void> _readRelease(UpdateInfo release) async {
+    final l10n = AppLocalizations.of(context);
+    final text = release.plainTextBody;
+    final speechText = text.isEmpty
+        ? '${l10n.updateVersionLabel(release.version)}. ${l10n.noReleaseNotesLabel}'
+        : '${l10n.updateVersionLabel(release.version)}. $text';
+
+    setState(() {
+      _isSpeaking = true;
+    });
+
+    await widget.speech?.announceText(
+      context,
+      speechText,
+      explicitSpeech: widget.explicitSpeech,
+      semanticsAnnounce: widget.semanticsAnnounce,
+      force: true,
+    );
+  }
+
+  Future<void> _readAll(List<UpdateInfo> releases) async {
+    final l10n = AppLocalizations.of(context);
+    if (releases.isEmpty) {
+      await widget.speech?.announceText(
+        context,
+        l10n.noNewsToRead,
+        explicitSpeech: widget.explicitSpeech,
+        semanticsAnnounce: widget.semanticsAnnounce,
+        force: true,
+      );
+      return;
+    }
+
+    final buffer = StringBuffer();
+    for (final release in releases) {
+      buffer.write('${l10n.updateVersionLabel(release.version)}. ');
+      final text = release.plainTextBody;
+      if (text.isEmpty) {
+        buffer.write('${l10n.noReleaseNotesLabel} ');
+      } else {
+        buffer.write('$text. ');
+      }
+    }
+
+    setState(() {
+      _isSpeaking = true;
+    });
+
+    await widget.speech?.announceText(
+      context,
+      buffer.toString(),
+      explicitSpeech: widget.explicitSpeech,
+      semanticsAnnounce: widget.semanticsAnnounce,
+      force: true,
+    );
+  }
+
+  Future<void> _stopSpeech() async {
+    await widget.speech?.stop();
+    if (mounted) {
+      setState(() {
+        _isSpeaking = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.newsTitle)),
+      appBar: AppBar(
+        title: Text(l10n.newsTitle),
+        actions: [
+          FutureBuilder<List<UpdateInfo>>(
+            future: _future,
+            builder: (context, snapshot) {
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              return IconButton(
+                tooltip: _isSpeaking
+                    ? l10n.stopReadingTooltip
+                    : l10n.readAllNewsTooltip,
+                icon: Icon(_isSpeaking ? Icons.stop : Icons.volume_up),
+                onPressed: _isSpeaking
+                    ? _stopSpeech
+                    : () => _readAll(snapshot.data!),
+              );
+            },
+          ),
+        ],
+      ),
       body: SafeArea(
         child: FutureBuilder<List<UpdateInfo>>(
           future: _future,
@@ -88,8 +184,10 @@ class _NewsScreenState extends State<NewsScreen> {
               padding: const EdgeInsets.all(16),
               itemCount: releases.length,
               separatorBuilder: (_, _) => const Divider(),
-              itemBuilder: (context, index) =>
-                  _ReleaseTile(release: releases[index]),
+              itemBuilder: (context, index) => _ReleaseTile(
+                release: releases[index],
+                onRead: () => _readRelease(releases[index]),
+              ),
             );
           },
         ),
@@ -123,9 +221,13 @@ class _ErrorView extends StatelessWidget {
 }
 
 class _ReleaseTile extends StatelessWidget {
-  const _ReleaseTile({required this.release});
+  const _ReleaseTile({
+    required this.release,
+    this.onRead,
+  });
 
   final UpdateInfo release;
+  final VoidCallback? onRead;
 
   @override
   Widget build(BuildContext context) {
@@ -139,9 +241,12 @@ class _ReleaseTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            l10n.updateVersionLabel(release.version),
-            style: Theme.of(context).textTheme.titleMedium,
+          Semantics(
+            header: true,
+            child: Text(
+              l10n.updateVersionLabel(release.version),
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
           ),
           if (date != null)
             Padding(
@@ -154,6 +259,18 @@ class _ReleaseTile extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             release.notes.isEmpty ? l10n.noReleaseNotesLabel : release.notes,
+          ),
+          const SizedBox(height: 12),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Semantics(
+              label: l10n.readNewsSemantics(release.version),
+              child: ElevatedButton.icon(
+                onPressed: onRead,
+                icon: const Icon(Icons.volume_up),
+                label: Text(l10n.readNewsButton),
+              ),
+            ),
           ),
         ],
       ),

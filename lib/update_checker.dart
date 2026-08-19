@@ -26,6 +26,20 @@ class UpdateInfo {
   /// When the release was published, when the source provides it.
   final DateTime? publishedAt;
 
+  /// Cleaned text without Markdown markup suitable for TTS playback.
+  String get plainTextBody {
+    if (notes.trim().isEmpty) return '';
+    return notes
+        .replaceAll(RegExp(r'^#{1,6}\s*', multiLine: true), '')
+        .replaceAll(RegExp(r'^\s*[-*]\s+', multiLine: true), '')
+        .replaceAll(RegExp(r'\*\*(.+?)\*\*', multiLine: true), r'$1')
+        .replaceAll(RegExp(r'\*(.+?)\*', multiLine: true), r'$1')
+        .replaceAll('`', '')
+        .replaceAll('_', '')
+        .replaceAll('\r\n', '\n')
+        .trim();
+  }
+
   Map<String, Object?> toJson() => {
         'version': version,
         'title': title,

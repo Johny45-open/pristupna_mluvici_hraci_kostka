@@ -254,4 +254,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updateLinkFailedLabel => 'Could not open the link.';
+
+  @override
+  String get readNewsButton => 'Read news';
+
+  @override
+  String readNewsSemantics(String version) {
+    return 'Read news for version $version';
+  }
+
+  @override
+  String get readAllNewsTooltip => 'Read all news';
+
+  @override
+  String get stopReadingTooltip => 'Stop reading';
+
+  @override
+  String get noNewsToRead => 'Nothing to read.';
 }
