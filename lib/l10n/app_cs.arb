@@ -72,5 +72,82 @@
   "speechTitle": "Vlastní hlas (TTS)",
   "speechSubtitle": "Kostka mluví i bez aktivní čtečky obrazovky.",
   "announceTitle": "Oznámení pro čtečku obrazovky",
-  "announceSubtitle": "Výsledky oznamuje aktivní čtečka."
+  "announceSubtitle": "Výsledky oznamuje aktivní čtečka.",
+  "presetsSectionTitle": "Předvolby",
+  "presetsEmptyHint": "Zatím žádné předvolby. Uložte aktuální nastavení a později je vyvolejte.",
+  "savePresetButton": "Uložit aktuální nastavení",
+  "savePresetDialogTitle": "Uložit předvolbu",
+  "presetNameLabel": "Název předvolby",
+  "presetNameHint": "např. d6",
+  "presetDefaultName": "d{sides}",
+  "@presetDefaultName": {
+    "placeholders": {
+      "sides": {
+        "type": "int"
+      }
+    }
+  },
+  "savePresetConfirm": "Uložit",
+  "cancelButton": "Zrušit",
+  "loadPresetTooltip": "Načíst předvolbu",
+  "deletePresetTooltip": "Smazat předvolbu",
+  "presetSavedLabel": "Předvolba {name} uložena.",
+  "@presetSavedLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "presetLoadedLabel": "Předvolba {name} načtena.",
+  "@presetLoadedLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "presetDeletedLabel": "Předvolba {name} smazána.",
+  "@presetDeletedLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "presetSummary": "{sides} stran, rychlost {speed}, zpomalení {deceleration}",
+  "@presetSummary": {
+    "placeholders": {
+      "sides": {
+        "type": "int"
+      },
+      "speed": {
+        "type": "String"
+      },
+      "deceleration": {
+        "type": "String"
+      }
+    }
+  },
+  "presetEntryLabel": "Předvolba {name}. {summary}",
+  "@presetEntryLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "summary": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePresetDialogTitle": "Smazat předvolbu?",
+  "deletePresetDialogContent": "Předvolba {name} bude trvale smazána.",
+  "@deletePresetDialogContent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteConfirm": "Smazat"
 }

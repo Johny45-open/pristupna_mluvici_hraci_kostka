@@ -283,6 +283,120 @@ abstract class AppLocalizations {
   /// In cs, this message translates to:
   /// **'Výsledky oznamuje aktivní čtečka.'**
   String get announceSubtitle;
+
+  /// No description provided for @presetsSectionTitle.
+  ///
+  /// In cs, this message translates to:
+  /// **'Předvolby'**
+  String get presetsSectionTitle;
+
+  /// No description provided for @presetsEmptyHint.
+  ///
+  /// In cs, this message translates to:
+  /// **'Zatím žádné předvolby. Uložte aktuální nastavení a později je vyvolejte.'**
+  String get presetsEmptyHint;
+
+  /// No description provided for @savePresetButton.
+  ///
+  /// In cs, this message translates to:
+  /// **'Uložit aktuální nastavení'**
+  String get savePresetButton;
+
+  /// No description provided for @savePresetDialogTitle.
+  ///
+  /// In cs, this message translates to:
+  /// **'Uložit předvolbu'**
+  String get savePresetDialogTitle;
+
+  /// No description provided for @presetNameLabel.
+  ///
+  /// In cs, this message translates to:
+  /// **'Název předvolby'**
+  String get presetNameLabel;
+
+  /// No description provided for @presetNameHint.
+  ///
+  /// In cs, this message translates to:
+  /// **'např. d6'**
+  String get presetNameHint;
+
+  /// No description provided for @presetDefaultName.
+  ///
+  /// In cs, this message translates to:
+  /// **'d{sides}'**
+  String presetDefaultName(int sides);
+
+  /// No description provided for @savePresetConfirm.
+  ///
+  /// In cs, this message translates to:
+  /// **'Uložit'**
+  String get savePresetConfirm;
+
+  /// No description provided for @cancelButton.
+  ///
+  /// In cs, this message translates to:
+  /// **'Zrušit'**
+  String get cancelButton;
+
+  /// No description provided for @loadPresetTooltip.
+  ///
+  /// In cs, this message translates to:
+  /// **'Načíst předvolbu'**
+  String get loadPresetTooltip;
+
+  /// No description provided for @deletePresetTooltip.
+  ///
+  /// In cs, this message translates to:
+  /// **'Smazat předvolbu'**
+  String get deletePresetTooltip;
+
+  /// No description provided for @presetSavedLabel.
+  ///
+  /// In cs, this message translates to:
+  /// **'Předvolba {name} uložena.'**
+  String presetSavedLabel(String name);
+
+  /// No description provided for @presetLoadedLabel.
+  ///
+  /// In cs, this message translates to:
+  /// **'Předvolba {name} načtena.'**
+  String presetLoadedLabel(String name);
+
+  /// No description provided for @presetDeletedLabel.
+  ///
+  /// In cs, this message translates to:
+  /// **'Předvolba {name} smazána.'**
+  String presetDeletedLabel(String name);
+
+  /// No description provided for @presetSummary.
+  ///
+  /// In cs, this message translates to:
+  /// **'{sides} stran, rychlost {speed}, zpomalení {deceleration}'**
+  String presetSummary(int sides, String speed, String deceleration);
+
+  /// No description provided for @presetEntryLabel.
+  ///
+  /// In cs, this message translates to:
+  /// **'Předvolba {name}. {summary}'**
+  String presetEntryLabel(String name, String summary);
+
+  /// No description provided for @deletePresetDialogTitle.
+  ///
+  /// In cs, this message translates to:
+  /// **'Smazat předvolbu?'**
+  String get deletePresetDialogTitle;
+
+  /// No description provided for @deletePresetDialogContent.
+  ///
+  /// In cs, this message translates to:
+  /// **'Předvolba {name} bude trvale smazána.'**
+  String deletePresetDialogContent(String name);
+
+  /// No description provided for @deleteConfirm.
+  ///
+  /// In cs, this message translates to:
+  /// **'Smazat'**
+  String get deleteConfirm;
 }
 
 class _AppLocalizationsDelegate

@@ -72,5 +72,82 @@
   "speechTitle": "Built-in voice (TTS)",
   "speechSubtitle": "The die speaks even without an active screen reader.",
   "announceTitle": "Screen reader announcements",
-  "announceSubtitle": "Results are announced by an active screen reader."
+  "announceSubtitle": "Results are announced by an active screen reader.",
+  "presetsSectionTitle": "Presets",
+  "presetsEmptyHint": "No presets yet. Save the current settings, then recall them later.",
+  "savePresetButton": "Save current settings",
+  "savePresetDialogTitle": "Save preset",
+  "presetNameLabel": "Preset name",
+  "presetNameHint": "e.g. d6",
+  "presetDefaultName": "d{sides}",
+  "@presetDefaultName": {
+    "placeholders": {
+      "sides": {
+        "type": "int"
+      }
+    }
+  },
+  "savePresetConfirm": "Save",
+  "cancelButton": "Cancel",
+  "loadPresetTooltip": "Load preset",
+  "deletePresetTooltip": "Delete preset",
+  "presetSavedLabel": "Preset {name} saved.",
+  "@presetSavedLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "presetLoadedLabel": "Preset {name} loaded.",
+  "@presetLoadedLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "presetDeletedLabel": "Preset {name} deleted.",
+  "@presetDeletedLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "presetSummary": "{sides} sides, speed {speed}, deceleration {deceleration}",
+  "@presetSummary": {
+    "placeholders": {
+      "sides": {
+        "type": "int"
+      },
+      "speed": {
+        "type": "String"
+      },
+      "deceleration": {
+        "type": "String"
+      }
+    }
+  },
+  "presetEntryLabel": "Preset {name}. {summary}",
+  "@presetEntryLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "summary": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePresetDialogTitle": "Delete preset?",
+  "deletePresetDialogContent": "The preset {name} will be permanently deleted.",
+  "@deletePresetDialogContent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteConfirm": "Delete"
 }

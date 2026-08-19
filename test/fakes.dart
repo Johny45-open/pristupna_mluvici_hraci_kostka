@@ -74,4 +74,14 @@ class FakeSpeechService extends SpeechService {
   }) async {
     announced.add('Zpomalení hodu: $speed.');
   }
+
+  @override
+  Future<void> announceText(
+    BuildContext context,
+    String text, {
+    required bool explicitSpeech,
+    required bool semanticsAnnounce,
+  }) async {
+    announced.add(text);
+  }
 }

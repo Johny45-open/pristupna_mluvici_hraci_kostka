@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pristupna_mluvici_hraci_kostka/dice_controller.dart';
+import 'package:pristupna_mluvici_hraci_kostka/dice_preset.dart';
 import 'package:pristupna_mluvici_hraci_kostka/dice_screen.dart';
 import 'package:pristupna_mluvici_hraci_kostka/l10n/app_localizations.dart';
+import 'package:pristupna_mluvici_hraci_kostka/presets.dart';
 import 'package:pristupna_mluvici_hraci_kostka/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,6 +17,7 @@ Future<FakeSpeechService> pumpScreen(
   WidgetTester tester, {
   DiceController? controller,
   SettingsController? settings,
+  PresetsController? presets,
 }) async {
   final speech = FakeSpeechService();
   await tester.pumpWidget(
@@ -30,6 +33,7 @@ Future<FakeSpeechService> pumpScreen(
       home: DiceScreen(
         controller: controller ?? DiceController(random: Random(1), sides: 6),
         settings: settings ?? SettingsController(const Settings()),
+        presets: presets ?? PresetsController(),
         speech: speech,
       ),
     ),
@@ -58,7 +62,7 @@ void main() {
     final speech = await pumpScreen(tester);
 
     final gesture = await tester.startGesture(
-      tester.getCenter(find.byType(FilledButton)),
+      tester.getCenter(find.byKey(const Key('rollButton'))),
     );
     await tester.pump();
     expect(find.text('Zastavit hod'), findsOneWidget);
@@ -89,7 +93,9 @@ void main() {
     final speech = await pumpScreen(tester);
 
     void activate() {
-      tester.widget<FilledButton>(find.byType(FilledButton)).onPressed!();
+      tester
+          .widget<FilledButton>(find.byKey(const Key('rollButton')))
+          .onPressed!();
     }
 
     activate();
@@ -182,7 +188,7 @@ void main() {
     await pumpScreen(tester, controller: controller);
 
     final gesture = await tester.startGesture(
-      tester.getCenter(find.byType(FilledButton)),
+      tester.getCenter(find.byKey(const Key('rollButton'))),
     );
     await tester.pump();
     for (var i = 0; i < 5; i++) {
@@ -297,6 +303,150 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final defaults = await SettingsController.load();
     expect(defaults.value.deceleration, DecelerationSpeed.normal);
+  });
+
+  testWidgets('shows a hint when there are no presets', (tester) async {
+    await pumpScreen(tester);
+    await tester.ensureVisible(find.text('Uložit aktuální nastavení'));
+    expect(find.textContaining('Zatím žádné předvolby'), findsOneWidget);
+  });
+
+  testWidgets('saving current settings creates a preset', (tester) async {
+    final presets = PresetsController();
+    await pumpScreen(tester, presets: presets);
+
+    await tester.ensureVisible(find.text('Uložit aktuální nastavení'));
+    await tester.tap(find.text('Uložit aktuální nastavení'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Uložit předvolbu'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'd6'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField), 'Má kostka');
+    await tester.tap(find.text('Uložit'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Má kostka'), findsOneWidget);
+    expect(presets.presets.single.name, 'Má kostka');
+    expect(presets.presets.single.sides, 6);
+  });
+
+  testWidgets('saving a preset announces the saved name', (tester) async {
+    final speech = await pumpScreen(tester);
+
+    await tester.ensureVisible(find.text('Uložit aktuální nastavení'));
+    await tester.tap(find.text('Uložit aktuální nastavení'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'Moje d6');
+    await tester.tap(find.text('Uložit'));
+    await tester.pumpAndSettle();
+
+    expect(speech.announced, contains('Předvolba Moje d6 uložena.'));
+  });
+
+  testWidgets('loading a preset applies its settings and announces',
+      (tester) async {
+    final controller = DiceController(random: Random(1), sides: 6);
+    final settings = SettingsController(const Settings());
+    final presets = PresetsController([
+      const DicePreset(
+        name: 'd8 svižná',
+        sides: 8,
+        rollSpeed: RollSpeed.fast,
+        deceleration: DecelerationSpeed.fast,
+      ),
+    ]);
+    final speech = await pumpScreen(
+      tester,
+      controller: controller,
+      settings: settings,
+      presets: presets,
+    );
+
+    await tester.ensureVisible(find.byTooltip('Načíst předvolbu'));
+    await tester.tap(find.byTooltip('Načíst předvolbu'));
+    await tester.pumpAndSettle();
+
+    expect(controller.sides, 8);
+    expect(controller.rollSpeed, RollSpeed.fast);
+    expect(controller.deceleration, DecelerationSpeed.fast);
+    expect(settings.value.sides, 8);
+    expect(settings.value.rollSpeed, RollSpeed.fast);
+    expect(settings.value.deceleration, DecelerationSpeed.fast);
+    expect(speech.announced, contains('Předvolba d8 svižná načtena.'));
+  });
+
+  testWidgets('deleting a preset asks for confirmation', (tester) async {
+    final presets = PresetsController([
+      const DicePreset(
+        name: 'Záloha',
+        sides: 20,
+        rollSpeed: RollSpeed.normal,
+        deceleration: DecelerationSpeed.normal,
+      ),
+    ]);
+    final speech = await pumpScreen(tester, presets: presets);
+
+    await tester.ensureVisible(find.byTooltip('Smazat předvolbu'));
+    await tester.tap(find.byTooltip('Smazat předvolbu'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Smazat předvolbu?'), findsOneWidget);
+    expect(find.textContaining('trvale smazána'), findsOneWidget);
+
+    await tester.tap(find.text('Zrušit'));
+    await tester.pumpAndSettle();
+    expect(presets.presets, hasLength(1));
+
+    await tester.tap(find.byTooltip('Smazat předvolbu'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Smazat'));
+    await tester.pumpAndSettle();
+
+    expect(presets.presets, isEmpty);
+    expect(find.text('Záloha'), findsNothing);
+    expect(speech.announced, contains('Předvolba Záloha smazána.'));
+  });
+
+  testWidgets('preset rows expose a readable semantics label', (tester) async {
+    final presets = PresetsController([
+      const DicePreset(
+        name: 'd12',
+        sides: 12,
+        rollSpeed: RollSpeed.slow,
+        deceleration: DecelerationSpeed.slow,
+      ),
+    ]);
+    await pumpScreen(tester, presets: presets);
+    final handle = tester.ensureSemantics();
+
+    await tester.ensureVisible(find.byTooltip('Načíst předvolbu'));
+    await tester.pump();
+
+    expect(
+      find.bySemanticsLabel(RegExp(
+        'Předvolba d12\\. 12 stran, rychlost Pomalá, zpomalení Pozvolné',
+      )),
+      findsOneWidget,
+    );
+
+    handle.dispose();
+  });
+
+  testWidgets('presets are restored from storage', (tester) async {
+    final presets = PresetsController([
+      const DicePreset(
+        name: 'Šestka',
+        sides: 6,
+        rollSpeed: RollSpeed.normal,
+        deceleration: DecelerationSpeed.normal,
+      ),
+    ]);
+    await presets.savePreset(presets.presets.single);
+
+    await pumpScreen(tester, presets: presets);
+    await tester.ensureVisible(find.text('Šestka'));
+    expect(find.text('Šestka'), findsOneWidget);
   });
 }
 

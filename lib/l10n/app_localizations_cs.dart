@@ -114,4 +114,76 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get announceSubtitle => 'Výsledky oznamuje aktivní čtečka.';
+
+  @override
+  String get presetsSectionTitle => 'Předvolby';
+
+  @override
+  String get presetsEmptyHint =>
+      'Zatím žádné předvolby. Uložte aktuální nastavení a později je vyvolejte.';
+
+  @override
+  String get savePresetButton => 'Uložit aktuální nastavení';
+
+  @override
+  String get savePresetDialogTitle => 'Uložit předvolbu';
+
+  @override
+  String get presetNameLabel => 'Název předvolby';
+
+  @override
+  String get presetNameHint => 'např. d6';
+
+  @override
+  String presetDefaultName(int sides) {
+    return 'd$sides';
+  }
+
+  @override
+  String get savePresetConfirm => 'Uložit';
+
+  @override
+  String get cancelButton => 'Zrušit';
+
+  @override
+  String get loadPresetTooltip => 'Načíst předvolbu';
+
+  @override
+  String get deletePresetTooltip => 'Smazat předvolbu';
+
+  @override
+  String presetSavedLabel(String name) {
+    return 'Předvolba $name uložena.';
+  }
+
+  @override
+  String presetLoadedLabel(String name) {
+    return 'Předvolba $name načtena.';
+  }
+
+  @override
+  String presetDeletedLabel(String name) {
+    return 'Předvolba $name smazána.';
+  }
+
+  @override
+  String presetSummary(int sides, String speed, String deceleration) {
+    return '$sides stran, rychlost $speed, zpomalení $deceleration';
+  }
+
+  @override
+  String presetEntryLabel(String name, String summary) {
+    return 'Předvolba $name. $summary';
+  }
+
+  @override
+  String get deletePresetDialogTitle => 'Smazat předvolbu?';
+
+  @override
+  String deletePresetDialogContent(String name) {
+    return 'Předvolba $name bude trvale smazána.';
+  }
+
+  @override
+  String get deleteConfirm => 'Smazat';
 }

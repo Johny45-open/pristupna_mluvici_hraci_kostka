@@ -116,4 +116,76 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get announceSubtitle =>
       'Results are announced by an active screen reader.';
+
+  @override
+  String get presetsSectionTitle => 'Presets';
+
+  @override
+  String get presetsEmptyHint =>
+      'No presets yet. Save the current settings, then recall them later.';
+
+  @override
+  String get savePresetButton => 'Save current settings';
+
+  @override
+  String get savePresetDialogTitle => 'Save preset';
+
+  @override
+  String get presetNameLabel => 'Preset name';
+
+  @override
+  String get presetNameHint => 'e.g. d6';
+
+  @override
+  String presetDefaultName(int sides) {
+    return 'd$sides';
+  }
+
+  @override
+  String get savePresetConfirm => 'Save';
+
+  @override
+  String get cancelButton => 'Cancel';
+
+  @override
+  String get loadPresetTooltip => 'Load preset';
+
+  @override
+  String get deletePresetTooltip => 'Delete preset';
+
+  @override
+  String presetSavedLabel(String name) {
+    return 'Preset $name saved.';
+  }
+
+  @override
+  String presetLoadedLabel(String name) {
+    return 'Preset $name loaded.';
+  }
+
+  @override
+  String presetDeletedLabel(String name) {
+    return 'Preset $name deleted.';
+  }
+
+  @override
+  String presetSummary(int sides, String speed, String deceleration) {
+    return '$sides sides, speed $speed, deceleration $deceleration';
+  }
+
+  @override
+  String presetEntryLabel(String name, String summary) {
+    return 'Preset $name. $summary';
+  }
+
+  @override
+  String get deletePresetDialogTitle => 'Delete preset?';
+
+  @override
+  String deletePresetDialogContent(String name) {
+    return 'The preset $name will be permanently deleted.';
+  }
+
+  @override
+  String get deleteConfirm => 'Delete';
 }

@@ -5,6 +5,7 @@ import 'package:pristupna_mluvici_hraci_kostka/dice_controller.dart';
 import 'package:pristupna_mluvici_hraci_kostka/dice_screen.dart';
 import 'package:pristupna_mluvici_hraci_kostka/l10n/app_localizations.dart';
 import 'package:pristupna_mluvici_hraci_kostka/main.dart';
+import 'package:pristupna_mluvici_hraci_kostka/presets.dart';
 import 'package:pristupna_mluvici_hraci_kostka/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -29,6 +30,7 @@ void main() {
         home: DiceScreen(
           controller: DiceController(sides: 6),
           settings: SettingsController(const Settings()),
+          presets: PresetsController(),
           speech: FakeSpeechService(),
         ),
       ),
@@ -46,7 +48,7 @@ void main() {
     tester.platformDispatcher.localesTestValue = const [Locale('cs')];
     addTearDown(tester.platformDispatcher.clearLocalesTestValue);
     final settings = await SettingsController.load();
-    await tester.pumpWidget(App(settings: settings));
+    await tester.pumpWidget(App(settings: settings, presets: PresetsController()));
 
     MaterialApp app() => tester.widget<MaterialApp>(find.byType(MaterialApp));
     expect(app().themeMode, ThemeMode.system);

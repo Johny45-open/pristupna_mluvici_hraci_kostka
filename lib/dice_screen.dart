@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'dice_controller.dart';
+import 'dice_preset.dart';
 import 'l10n/app_localizations.dart';
+import 'presets.dart';
 import 'settings.dart';
 import 'speech_service.dart';
 
@@ -12,11 +14,13 @@ class DiceScreen extends StatefulWidget {
     super.key,
     required this.controller,
     required this.settings,
+    required this.presets,
     this.speech,
   });
 
   final DiceController controller;
   final SettingsController settings;
+  final PresetsController presets;
   final SpeechService? speech;
 
   @override
@@ -101,7 +105,7 @@ class _DiceScreenState extends State<DiceScreen> {
       appBar: AppBar(title: Text(AppLocalizations.of(context).appTitle)),
       body: SafeArea(
         child: ListenableBuilder(
-          listenable: Listenable.merge([_controller, widget.settings]),
+          listenable: Listenable.merge([_controller, widget.settings, widget.presets]),
           builder: (context, _) {
             return SingleChildScrollView(
               padding: const EdgeInsets.all(24),
@@ -117,6 +121,8 @@ class _DiceScreenState extends State<DiceScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
+                  _buildPresetsSection(context),
+                  const SizedBox(height: 24),
                   _buildSidesSection(context),
                   const SizedBox(height: 24),
                   _buildRollSpeedSection(context),
@@ -183,6 +189,7 @@ class _DiceScreenState extends State<DiceScreen> {
       },
       onPointerUp: (_) => _controller.stop(),
       child: FilledButton(
+        key: const Key('rollButton'),
         onPressed: onTap,
         style: FilledButton.styleFrom(
           minimumSize: const Size(320, 160),
@@ -435,5 +442,186 @@ class _DiceScreenState extends State<DiceScreen> {
         ),
       ],
     );
+  }
+
+  Future<void> _announceText(String message) async {
+    if (!mounted) return;
+    final settings = widget.settings.value;
+    await _speech.announceText(
+      context,
+      message,
+      explicitSpeech: settings.explicitSpeech,
+      semanticsAnnounce: settings.semanticsAnnounce,
+    );
+  }
+
+  Widget _buildPresetsSection(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final presets = widget.presets.presets;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              l10n.presetsSectionTitle,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            FilledButton.tonalIcon(
+              onPressed: _savePreset,
+              icon: const Icon(Icons.bookmark_add_outlined),
+              label: Text(l10n.savePresetButton),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        if (presets.isEmpty)
+          Text(
+            l10n.presetsEmptyHint,
+            style: Theme.of(context).textTheme.bodyMedium,
+          )
+        else
+          for (final preset in presets) _buildPresetRow(context, preset),
+      ],
+    );
+  }
+
+  String _presetSummary(BuildContext context, DicePreset preset) {
+    return AppLocalizations.of(context).presetSummary(
+      preset.sides,
+      _speedName(context, preset.rollSpeed),
+      _decelerationName(context, preset.deceleration),
+    );
+  }
+
+  Widget _buildPresetRow(BuildContext context, DicePreset preset) {
+    final l10n = AppLocalizations.of(context);
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Row(
+          children: [
+            Expanded(
+              child: Semantics(
+                label: l10n.presetEntryLabel(
+                  preset.name,
+                  _presetSummary(context, preset),
+                ),
+                child: ExcludeSemantics(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        preset.name,
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                      Text(
+                        _presetSummary(context, preset),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            IconButton.filledTonal(
+              tooltip: l10n.loadPresetTooltip,
+              onPressed: () => _loadPreset(preset),
+              icon: const Icon(Icons.play_arrow),
+            ),
+            IconButton(
+              tooltip: l10n.deletePresetTooltip,
+              onPressed: () => _confirmDeletePreset(preset),
+              icon: const Icon(Icons.delete_outline),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _savePreset() async {
+    final l10n = AppLocalizations.of(context);
+    final controller = TextEditingController(
+      text: l10n.presetDefaultName(_controller.sides),
+    );
+    final name = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(l10n.savePresetDialogTitle),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            decoration: InputDecoration(
+              labelText: l10n.presetNameLabel,
+              hintText: l10n.presetNameHint,
+            ),
+            onSubmitted: (value) => Navigator.pop(dialogContext, value),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(l10n.cancelButton),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, controller.text),
+              child: Text(l10n.savePresetConfirm),
+            ),
+          ],
+        );
+      },
+    );
+    final trimmed = name?.trim() ?? '';
+    if (!mounted || trimmed.isEmpty) return;
+    final preset = DicePreset(
+      name: trimmed,
+      sides: _controller.sides,
+      rollSpeed: widget.settings.value.rollSpeed,
+      deceleration: widget.settings.value.deceleration,
+    );
+    final message = AppLocalizations.of(context).presetSavedLabel(preset.name);
+    await widget.presets.savePreset(preset);
+    await _announceText(message);
+  }
+
+  Future<void> _loadPreset(DicePreset preset) async {
+    final message = AppLocalizations.of(context).presetLoadedLabel(preset.name);
+    await widget.settings.setSides(preset.sides);
+    await widget.settings.setRollSpeed(preset.rollSpeed);
+    await widget.settings.setDeceleration(preset.deceleration);
+    _controller.setSides(preset.sides);
+    _controller.setRollSpeed(preset.rollSpeed);
+    _controller.setDeceleration(preset.deceleration);
+    await _announceText(message);
+  }
+
+  Future<void> _confirmDeletePreset(DicePreset preset) async {
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(l10n.deletePresetDialogTitle),
+          content: Text(l10n.deletePresetDialogContent(preset.name)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: Text(l10n.cancelButton),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: Text(l10n.deleteConfirm),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed != true || !mounted) return;
+    final message = AppLocalizations.of(context).presetDeletedLabel(preset.name);
+    await widget.presets.deletePreset(preset.name);
+    await _announceText(message);
   }
 }

@@ -4,18 +4,21 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'dice_controller.dart';
 import 'dice_screen.dart';
 import 'l10n/app_localizations.dart';
+import 'presets.dart';
 import 'settings.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final settings = await SettingsController.load();
-  runApp(App(settings: settings));
+  final presets = await PresetsController.load();
+  runApp(App(settings: settings, presets: presets));
 }
 
 class App extends StatefulWidget {
-  const App({super.key, required this.settings});
+  const App({super.key, required this.settings, required this.presets});
 
   final SettingsController settings;
+  final PresetsController presets;
 
   @override
   State<App> createState() => _AppState();
@@ -68,6 +71,7 @@ class _AppState extends State<App> {
           home: DiceScreen(
             controller: _controller,
             settings: widget.settings,
+            presets: widget.presets,
           ),
         );
       },
